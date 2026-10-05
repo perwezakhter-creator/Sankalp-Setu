@@ -1,0 +1,3946 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SankalpAPI",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/Applicant/GetApplicantDetails": {
+      "post": {
+        "tags": [
+          "Applicant"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Applicant/VerifyOtp": {
+      "post": {
+        "tags": [
+          "Applicant"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.VerifyOtpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Applicant/GetBeneficiaryMessages": {
+      "post": {
+        "tags": [
+          "Applicant"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.GetBeneficiaryMessagesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.GetBeneficiaryMessagesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/Login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Dashboard/Summary": {
+      "post": {
+        "tags": [
+          "Dashboard"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Dashboard/BlockWise": {
+      "post": {
+        "tags": [
+          "Dashboard"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.BlockWiseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Dashboard/BlockWise/{districtCode}": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "parameters": [
+          {
+            "name": "districtCode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "additionalProperties": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.BlockWiseResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Master/GetGenderList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetAgeGroupList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetDistrictList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetBlockList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.BlockListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.BlockListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.BlockListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetPanchayatList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PanchayatListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PanchayatListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PanchayatListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetVillageList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.VillageListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.VillageListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.VillageListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetWardList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.WardListRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.WardListRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.WardListRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetCategoryList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetQualificationList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetOccupationList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetInterestList": {
+      "get": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetAppVersion": {
+      "get": {
+        "tags": [
+          "Master"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetPublicKey": {
+      "get": {
+        "tags": [
+          "Master"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Master/GetPortalList": {
+      "post": {
+        "tags": [
+          "Master"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.MasterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Message/GetUnsyncedMessages": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.GetUnsyncedMessagesRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.GetUnsyncedMessagesResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.GetUnsyncedMessagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Message/CreateNotification": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.CreateNotificationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Message/MarkSynced": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.MarkSyncedRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Message/GetInterestWiseMessage": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.GetMessageHistoryRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Message/GetBroadCastMessage": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Message/InsertBroadcastMessage": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.InsertBroadcastMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InsertBroadcastMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InsertBroadcastMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Message/InsertInterestWiseMessage": {
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.InsertInterestWiseMessageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InsertInterestWiseMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InsertInterestWiseMessageResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Message/GetInterestWiseMessages": {
+      "get": {
+        "tags": [
+          "Message"
+        ],
+        "parameters": [
+          {
+            "name": "interestId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Message"
+        ],
+        "parameters": [
+          {
+            "name": "interestId",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Otp/SendOtp": {
+      "post": {
+        "tags": [
+          "Otp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.SendOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.OtpSendResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.OtpSendResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.OtpSendResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Otp/VerifyOtp": {
+      "post": {
+        "tags": [
+          "Otp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.VerifyOtpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.VerifyOtpResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.VerifyOtpResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Portal/GetPortals": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Portal/GetPortal": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PortalGetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Portal/GetUserType": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PortalGetRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/Portal/Connect": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.PortalConnectResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Portal/GetApplicantDetails": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantListResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Portal/VerifyOtp": {
+      "post": {
+        "tags": [
+          "Portal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.VerifyOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.VerifyOtpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "Gateway Timeout",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ApplicantResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Totp/InitiateRegistration": {
+      "post": {
+        "tags": [
+          "Totp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.InitiateRegistrationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InitiateRegistrationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.InitiateRegistrationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Totp/ValidateOtpAndGenerateSecret": {
+      "post": {
+        "tags": [
+          "Totp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.ValidateOtpAndGenerateSecretRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ValidateOtpAndGenerateSecretResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ValidateOtpAndGenerateSecretResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Totp/ValidateTotp": {
+      "post": {
+        "tags": [
+          "Totp"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.ValidateTotpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ValidateTotpResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.Model.ValidateTotpResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/Register": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.DTO.RegisterUserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.RegisterUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.RegisterUserResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.RegisterUserResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SankalpAPI.DTO.RegisterUserResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/User/Insert": {
+      "post": {
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SankalpAPI.Model.UserRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": [
+          "WeatherForecast"
+        ],
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenRepoAPI.WeatherForecast"
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenRepoAPI.WeatherForecast"
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BenRepoAPI.WeatherForecast"
+                  },
+                  "additionalProperties": false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BenRepoAPI.WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date"
+          },
+          "temperatureC": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "temperatureF": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "readOnly": true
+          },
+          "summary": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.AreaWiseSummaryDto": {
+        "type": "object",
+        "properties": {
+          "ruralCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "urbanCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "unspecifiedCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "total": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "ruralPercentage": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "double"
+          },
+          "urbanPercentage": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.BlockWiseApplicantDto": {
+        "type": "object",
+        "properties": {
+          "districtCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockNameHn": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "totalRegistered": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "ruralCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "urbanCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.BlockWiseResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.BlockWiseApplicantDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.DashboardSummaryData": {
+        "type": "object",
+        "properties": {
+          "totalRegisteredApplicants": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "totalBeneficiaries": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "totalDistricts": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "totalBlocks": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "totalPanchayats": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "areaWise": {
+            "$ref": "#/components/schemas/SankalpAPI.DTO.AreaWiseSummaryDto"
+          },
+          "districtWise": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.DistrictWiseApplicantDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "genderWise": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.DemographicItemDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "categoryWise": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.DemographicItemDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "recentApplicants": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.RecentApplicantDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "panchayatCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "awayabCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "departmentCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "schemeCount": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.DashboardSummaryRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.DashboardSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.DTO.DashboardSummaryData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.DemographicItemDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "percentage": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.DistrictWiseApplicantDto": {
+        "type": "object",
+        "properties": {
+          "districtCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtNameHn": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "totalRegistered": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "ruralCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "urbanCount": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.MasterDto": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.RecentApplicantDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "maskedMobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "areaType": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.RegisterUserRequest": {
+        "required": [
+          "mobileNo",
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "maxLength": 255,
+            "minLength": 0,
+            "type": "string",
+            "additionalProperties": false
+          },
+          "mobileNo": {
+            "minLength": 1,
+            "pattern": "^[0-9]{10}$",
+            "type": "string",
+            "additionalProperties": false
+          },
+          "password": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "distCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "blockCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "panchayatCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "areaType": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "villCode": {
+            "type": "number",
+            "additionalProperties": false,
+            "format": "double",
+            "nullable": true
+          },
+          "wardCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "genderCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "ageGroupId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "qualificationId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "occupationId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryBy": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.RegisterUserResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.UserData": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "name": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobileNo": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "email": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "distCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "blockCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "panchayatCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "areaType": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "villCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "wardCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "genderCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "ageGroupId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "qualificationId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "occupationId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "interests": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userInterests": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.DTO.UserInterestData"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.UserInterestData": {
+        "type": "object",
+        "properties": {
+          "mapId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "interestId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "interestName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.VerifyOtpRequest": {
+        "required": [
+          "mobileNo",
+          "otp"
+        ],
+        "type": "object",
+        "properties": {
+          "mobileNo": {
+            "minLength": 1,
+            "pattern": "^[0-9]{10}$",
+            "type": "string",
+            "additionalProperties": false
+          },
+          "otp": {
+            "minLength": 1,
+            "type": "string",
+            "additionalProperties": false
+          },
+          "DeviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.DTO.VerifyOtpResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "userExists": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.DTO.UserData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ApplicantListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.Model.BeneficiaryData"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ApplicantRequest": {
+        "type": "object",
+        "properties": {
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "mobile_no": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceid": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "session": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "UserType": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ApplicantResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.BeneficiaryData": {
+        "type": "object",
+        "properties": {
+          "a_Id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "beneficiaryID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "dob": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "gender": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobileNO": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "categoryName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "schemeCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "schemeName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "area": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "villageName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "villageCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "wardName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "wardCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "panchyatCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "panchyatName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "districtId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "otp": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "is_verified": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.BlockListRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "district_Code": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.BroadcastMessageDto": {
+        "type": "object",
+        "properties": {
+          "bmsg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "msg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "readOnly": true
+          },
+          "message_head": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "message_body": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "validity_in_minutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo1path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo2path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "videopath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "documentpath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryby": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entrydate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedby": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "updateddate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "is_synced": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "is_deleted": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "messageJson": {
+            "additionalProperties": false,
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.CreateNotificationRequest": {
+        "type": "object",
+        "properties": {
+          "deviceID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "msg_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "interest_ID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryBy": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.GetBeneficiaryMessagesRequest": {
+        "type": "object",
+        "properties": {
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "token": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.GetBeneficiaryMessagesResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.Model.SavedBeneficiaryMessageDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.GetMessageHistoryRequest": {
+        "type": "object",
+        "properties": {
+          "deviceID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "interest_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.GetUnsyncedMessagesRequest": {
+        "type": "object",
+        "properties": {
+          "deviceID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.GetUnsyncedMessagesResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.Model.PersonalizedMessageDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InitiateRegistrationData": {
+        "type": "object",
+        "properties": {
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "portalName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "maskedMobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "otpExpiryMinutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "devOtp": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InitiateRegistrationRequest": {
+        "type": "object",
+        "properties": {
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InitiateRegistrationResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.InitiateRegistrationData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InsertBroadcastMessageRequest": {
+        "type": "object",
+        "properties": {
+          "message_head": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "message_body": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "validity_in_minutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo1path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo2path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "videopath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "documentpath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryby": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "client_key": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InsertBroadcastMessageResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "bmsg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.BroadcastMessageDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InsertInterestWiseMessageRequest": {
+        "type": "object",
+        "properties": {
+          "interest_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "message_head": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "message_body": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "validity_in_minutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "is_active": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo1path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo2path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "videopath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "documentpath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "youtubeurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "facebookurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "instagramurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "Xurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "entryby": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "client_key": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.InsertInterestWiseMessageResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "msg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.PersonalizedMessageDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.LoginRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.LoginResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientToken": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.UsrResponse"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.MarkSyncedRequest": {
+        "type": "object",
+        "properties": {
+          "notificationIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.OtpSendData": {
+        "type": "object",
+        "properties": {
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "maskedMobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "otpExpiryMinutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "devOtp": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.OtpSendResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.OtpSendData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PanchayatListRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "blockCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PersonalizedMessageDto": {
+        "type": "object",
+        "properties": {
+          "msg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "msg_log_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          },
+          "notification_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true,
+            "readOnly": true
+          },
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64",
+            "nullable": true
+          },
+          "portalName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "messageHead": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "messageBody": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo1path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "photo2path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "videopath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "documentpath": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "youtubeurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "facebookurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "instagramurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "xurl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "interest_ID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "isDeleted": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "synced": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "isSynced": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "validityInMinutes": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32",
+            "nullable": true
+          },
+          "syncDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "entryDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "messageJson": {
+            "additionalProperties": false,
+            "nullable": true,
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PortalConnectRequest": {
+        "type": "object",
+        "properties": {
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "session": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "device_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "client_key": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PortalConnectResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "statusCode": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "portalName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "targetUrl": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PortalDto": {
+        "type": "object",
+        "properties": {
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "portal_name": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "portal_url": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "portal_image_path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "is_active": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PortalGetRequest": {
+        "type": "object",
+        "properties": {
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.PortalListResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SankalpAPI.Model.PortalDto"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.SavedBeneficiaryMessageDto": {
+        "type": "object",
+        "properties": {
+          "message_Id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "benificiary_No": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobNo": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "message_Head": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "message_Body": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "type": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "pic_Path1": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "pic_Path2": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "video_Path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "doc_Path": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "createdDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "msg_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "msg_log_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "device_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "is_synced": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "sync_date": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.SendOtpRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.TotpSecretData": {
+        "type": "object",
+        "properties": {
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "portalName": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "totpSecret": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "digits": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "period": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int32"
+          },
+          "algorithm": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "qrCodeUri": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.UserRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "password": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.UsrResponse": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "username": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userRole": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ValidateOtpAndGenerateSecretRequest": {
+        "type": "object",
+        "properties": {
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "otp": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ValidateOtpAndGenerateSecretResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.TotpSecretData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ValidateTotpRequest": {
+        "type": "object",
+        "properties": {
+          "portalId": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "mobile": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "totpCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.ValidateTotpResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.VerifyOtpData": {
+        "type": "object",
+        "properties": {
+          "a_Id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "beneficiaryID": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobileNo": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "secretKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "token": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "verifyDate": {
+            "type": "string",
+            "additionalProperties": false,
+            "format": "date-time",
+            "nullable": true
+          },
+          "otpauth_url": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "user_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "is_verified": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.VerifyOtpRequest": {
+        "type": "object",
+        "properties": {
+          "a_Id": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "additionalProperties": false,
+              "format": "int64"
+            },
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "mobileNo": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "otp": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "deviceId": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "session": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "portal_id": {
+            "type": "integer",
+            "additionalProperties": false,
+            "format": "int64"
+          },
+          "client_key": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "user_id": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.VerifyOtpResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "boolean",
+            "additionalProperties": false
+          },
+          "message": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/SankalpAPI.Model.VerifyOtpData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.VillageListRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "panchayatCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "SankalpAPI.Model.WardListRequest": {
+        "type": "object",
+        "properties": {
+          "clientKey": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          },
+          "panchayatCode": {
+            "type": "string",
+            "additionalProperties": false,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "securitySchemes": {
+      "ClientToken": {
+        "type": "apiKey",
+        "description": "Enter ClientToken.",
+        "name": "X-Client-Token",
+        "in": "header"
+      }
+    }
+  },
+  "security": [
+    {
+      "ClientToken": [ ]
+    }
+  ]
+}

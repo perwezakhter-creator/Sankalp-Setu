@@ -1,0 +1,10 @@
+----------- Exception Details -----------
+Log Date       : 11-09-2026 13:52:43
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_save_client_token' expects parameter '@p_user_id', which was not supplied.
+Request URL    : /api/Auth/Login
+User Host IP   : ::1
+----------------------------------------
+

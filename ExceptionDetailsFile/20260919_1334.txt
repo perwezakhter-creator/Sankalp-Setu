@@ -1,0 +1,10 @@
+----------- Exception Details -----------
+Log Date       : 19-09-2026 13:34:37
+Error Line No  : ine 184
+Error Message  : InvalidCastException
+Exception Type : System.InvalidCastException
+Error Location : Object cannot be cast from DBNull to other types.
+Request URL    : /api/Message/GetBroadCastMessage
+User Host IP   : ::1
+----------------------------------------
+

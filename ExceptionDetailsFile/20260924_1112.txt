@@ -1,0 +1,20 @@
+----------- Exception Details -----------
+Log Date       : 24-09-2026 11:12:25
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Error converting data type varchar to bigint.
+Request URL    : /api/Master/GetBlockList
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 24-09-2026 11:12:51
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Error converting data type varchar to bigint.
+Request URL    : /api/Master/GetBlockList
+User Host IP   : ::1
+----------------------------------------
+

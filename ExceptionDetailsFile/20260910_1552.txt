@@ -1,0 +1,10 @@
+----------- Exception Details -----------
+Log Date       : 10-09-2026 15:52:02
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Could not find stored procedure 'dbo.GetPortalList'.
+Request URL    : /api/Master/GetPortalList
+User Host IP   : ::1
+----------------------------------------
+

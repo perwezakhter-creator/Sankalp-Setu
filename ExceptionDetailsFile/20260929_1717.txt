@@ -1,0 +1,60 @@
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:07
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Master/GetDistrict
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:08
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Master/GetDistrict
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:11
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Master/GetDistrict
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:11
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Master/GetDistrict
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:13
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Master/GetDistrict
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 29-09-2026 17:17:13
+Error Line No  : ine 116
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Procedure or function 'sp_validate_client_token' expects parameter '@p_token_hash', which was not supplied.
+Request URL    : /api/Dashboard/Summary
+User Host IP   : ::1
+----------------------------------------
+

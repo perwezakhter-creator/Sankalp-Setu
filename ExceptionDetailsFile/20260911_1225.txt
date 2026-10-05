@@ -1,0 +1,20 @@
+----------- Exception Details -----------
+Log Date       : 11-09-2026 12:25:01
+Error Line No  : line 80
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Error converting data type nvarchar to bigint.
+Request URL    : /api/Message/GetHistory
+User Host IP   : ::1
+----------------------------------------
+
+----------- Exception Details -----------
+Log Date       : 11-09-2026 12:25:01
+Error Line No  : ine 182
+Error Message  : SqlException
+Exception Type : Microsoft.Data.SqlClient.SqlException
+Error Location : Error converting data type nvarchar to bigint.
+Request URL    : /api/Message/GetHistory
+User Host IP   : ::1
+----------------------------------------
+

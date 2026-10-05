@@ -1,0 +1,204 @@
+@BenRepoAPI_HostAddress = http://localhost:5166
+
+GET {{BenRepoAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### 1. Get Applicant Details (via ApplicantController -> eLabharthiAPI /send-otp)
+POST {{BenRepoAPI_HostAddress}}/api/Applicant/GetApplicantDetails
+Content-Type: application/json
+Accept: application/json
+
+{
+  "portal_id": 0,
+  "mobile_no": "9876543210",
+  "deviceid": "DEVICE123456",
+  "session": "2024-2025"
+}
+
+###
+
+### 2. Get Applicant Details (via PortalController)
+POST {{BenRepoAPI_HostAddress}}/api/Portal/GetApplicantDetails
+Content-Type: application/json
+Accept: application/json
+
+{
+  "portal_id": 1,
+  "mobile_no": "9876543210",
+  "deviceid": "DEVICE123456",
+  "session": "2024-2025",
+  "client_key": "CLIENT_KEY_SECRET_789"
+}
+
+### 3. Verify OTP (Single a_Id)
+POST {{BenRepoAPI_HostAddress}}/api/Applicant/VerifyOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "a_Id": 23,
+  "mobileNo": "9097372728",
+  "otp": "139904",
+  "deviceId": "DEV123",
+  "session": "2025"
+}
+
+###
+
+### 4. Verify OTP (Multiple a_Id Array)
+POST {{BenRepoAPI_HostAddress}}/api/Applicant/VerifyOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "a_Id": [23, 24],
+  "mobileNo": "9097372728",
+  "otp": "139904",
+  "deviceId": "DEV123",
+  "session": "2025"
+}
+
+###
+
+### 5. Send OTP to Mobile (via OtpController)
+POST {{BenRepoAPI_HostAddress}}/api/Otp/SendOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "mobile": "9876543210",
+  "deviceId": "DEV123456"
+}
+
+###
+
+### 6. Verify OTP on Mobile (via OtpController)
+POST {{BenRepoAPI_HostAddress}}/api/Otp/VerifyOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "mobileNo": "9876543210",
+  "otp": "123456"
+}
+
+###
+
+### 7. Send OTP via Sms route alias
+POST {{BenRepoAPI_HostAddress}}/api/Sms/SendOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "mobile": "9876543210"
+}
+
+###
+
+### 8. Verify OTP via Sms route alias
+POST {{BenRepoAPI_HostAddress}}/api/Sms/VerifyOtp
+Content-Type: application/json
+Accept: application/json
+
+{
+  "mobile": "9876543210",
+  "otp": "123456"
+}
+
+###
+
+### 9. User Registration - Successful Registration
+POST {{BenRepoAPI_HostAddress}}/api/User/Register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Perwez Akhter",
+  "mobileNo": "9876543210",
+  "interests": [1, 3, 5]
+}
+
+###
+
+### 10. User Registration - Deduplication of Interests
+POST {{BenRepoAPI_HostAddress}}/api/User/Register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Perwez Akhter",
+  "mobileNo": "9876543211",
+  "email": "user@example.com",
+  "interests": [1, 1, 3, 3, 5]
+}
+
+###
+
+### 11. User Registration - Duplicate Mobile (Expect 409 Conflict)
+POST {{BenRepoAPI_HostAddress}}/api/User/Register
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Duplicate User",
+  "mobileNo": "9876543210",
+  "interests": [2, 4]
+}
+
+###
+
+### 12. Insert Broadcast Message (via MessageController)
+POST {{BenRepoAPI_HostAddress}}/api/Message/InsertBroadcastMessage
+Content-Type: application/json
+Accept: application/json
+
+{
+  "message_head": "Public Health Alert: Dengue Prevention Advisory",
+  "message_body": "Health Department Advisory: Please ensure no stagnant clean water accumulates around your premises. Use mosquito nets and report any persistent fever to your nearest PHC.",
+  "validity_in_minutes": 1440,
+  "is_active": "Y",
+  "photo1path": "https://health.bihar.gov.in/images/dengue_advisory.jpg",
+  "entryby": "Admin"
+}
+
+###
+
+### 13. Get Broadcast Messages (Verify inserted message)
+POST {{BenRepoAPI_HostAddress}}/api/Message/GetBroadCastMessage
+Content-Type: application/json
+Accept: application/json
+
+###
+
+### 14. Insert Interest-Wise Message (via MessageController, without portal_id or mobile)
+POST {{BenRepoAPI_HostAddress}}/api/Message/InsertInterestWiseMessage
+Content-Type: application/json
+Accept: application/json
+
+{
+  "interest_id": 5,
+  "message_head": "Agriculture Advisory: Kharif Crop Protection",
+  "message_body": "Department Advisory for Farmers: Recommended pest control measures for Kharif crops during erratic rainfall periods. Visit your local Block Agriculture Officer for subsidized fertilizers.",
+  "validity_in_minutes": 10000,
+  "is_active": "Y",
+  "photo1path": "https://health.bihar.gov.in/images/crop_pest_control.jpg",
+  "youtubeurl": "https://www.youtube.com/watch?v=samplecropvideo",
+  "entryby": "Admin"
+}
+
+###
+
+### 15. Fetch Interest-Wise Message History (Verify inserted interest message)
+POST {{BenRepoAPI_HostAddress}}/api/Message/GetInterestWiseMessage
+Content-Type: application/json
+Accept: application/json
+
+{
+  "DeviceID": "DEVICE123456",
+  "interest_id": "5"
+}
+
+
+
