@@ -200,5 +200,28 @@ Accept: application/json
   "interest_id": "5"
 }
 
+###
 
+### 16. Get Beneficiary / Pensioner Status (Portal 1: eLabharthi -> http://10.133.20.151/eLabharthi/api/Beneficiary/Get_Beneficiary_Status)
+POST {{BenRepoAPI_HostAddress}}/api/Applicant/GetBeneficiaryStatus
+Content-Type: application/json
+Accept: application/json
 
+{
+  "portalId": 1,
+  "mobileNo": "9097372728",
+  "beneficiaryNo": "000000200577"
+}
+
+###
+
+### 17. Get Beneficiary / Pensioner Status (Portal 4: Postmatric Scholarship -> http://10.133.20.183:8095/api/Beneficiary/Get_Beneficiary_Status)
+POST {{BenRepoAPI_HostAddress}}/api/Applicant/GetBeneficiaryStatus
+Content-Type: application/json
+Accept: application/json
+
+{
+  "portalId": 4,
+  "mobileNo": "9097372728",
+  "beneficiaryNo": "000000200577"
+}

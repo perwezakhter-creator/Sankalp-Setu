@@ -24,5 +24,17 @@ namespace SankalpAPI.Interface
         /// and records the synced status in tbl_Message_log.
         /// </summary>
         Task<ApplicantResponse> GetBeneficiaryMessagesAsync(GetBeneficiaryMessagesRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Communicates with external portal API (eLabharthi /api/Beneficiary/Get_Beneficiary_Status)
+        /// to fetch pensioner/beneficiary status based on portalId, mobileNo, and beneficiaryNo.
+        /// </summary>
+        Task<ApplicantResponse> GetBeneficiaryStatusAsync(GetBeneficiaryStatusRequest request, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Verifies the server-generated OTP for portals where an external portal URL is unavailable,
+        /// and inserts the applicant's portal mapping into tbl_map_user_portal.
+        /// </summary>
+        Task<ApplicantResponse> VerifyApplicantOtpAsync(VerifyApplicantOtpRequest request, CancellationToken cancellationToken = default);
     }
 }

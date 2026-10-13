@@ -1,0 +1,10 @@
+----------- Exception Details -----------
+Log Date       : 07-10-2026 14:04:35
+Error Line No  : ne 1107
+Error Message  : TaskCanceledException
+Exception Type : System.Threading.Tasks.TaskCanceledException
+Error Location : The request was canceled due to the configured HttpClient.Timeout of 15 seconds elapsing.
+Request URL    : /api/Applicant/GetBeneficiaryMessages
+User Host IP   : ::1
+----------------------------------------
+

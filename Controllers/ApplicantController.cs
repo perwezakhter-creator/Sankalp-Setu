@@ -25,9 +25,10 @@ namespace SankalpAPI.Controllers
         /// <summary>
         /// Accesses an external portal API (eLabharthi / Sankalp) passing portal_id (mapped as portType to external API),
         /// mobile_no, deviceid, session in JSON format, saves the applicant details into the database, and returns the beneficiary records.
+        /// If the portal's URL is unavailable/unconfigured (e.g. portal_id = 5), initiates OTP-based applicant registration via SMS.
         /// </summary>
         /// <remarks>
-        /// Sample Request:
+        /// Sample Request (Portal URL available):
         /// 
         ///     POST /api/Applicant/GetApplicantDetails
         ///     {
@@ -37,15 +38,23 @@ namespace SankalpAPI.Controllers
         ///       "session": "2024-2025"
         ///     }
         /// 
-        /// Target External API:
+        /// Sample Request (Portal URL unavailable - initiates OTP-based registration):
         /// 
-        ///     http://10.133.20.151/eLabharthi/api/Beneficiary/send-otp
-        ///     (portal_id is forwarded as portType to eLabharthi API)
+        ///     POST /api/Applicant/GetApplicantDetails
+        ///     {
+        ///       "portal_id": 5,
+        ///       "mobile_no": "9507637005",
+        ///       "deviceid": "DEV123",
+        ///       "session": "2026",
+        ///       "UserType": "2"
+        ///     }
         /// </remarks>
         [HttpPost("GetApplicantDetails")]
         [ProducesResponseType(typeof(ApplicantListResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status429TooManyRequests)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status502BadGateway)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status504GatewayTimeout)]
         public async Task<IActionResult> GetApplicantDetails([FromBody] ApplicantRequest request, CancellationToken cancellationToken)
@@ -76,11 +85,11 @@ namespace SankalpAPI.Controllers
         }
 
         /// <summary>
-        /// Verifies OTP via the external portal API (e.g. eLabharthi http://10.133.20.151/eLabharthi/api/Beneficiary/verify-otp).
-        /// Upon successful verification, generates and stores the TOTP secret key and client token in the database.
+        /// Verifies OTP via the external portal API (when portal URL is configured) or via server-side OTP verification
+        /// (when portal URL is unavailable, inserting the applicant mapping into tbl_map_user_portal).
         /// </summary>
         /// <remarks>
-        /// Sample Request:
+        /// Sample Request (External Portal OTP Verification):
         /// 
         ///     POST /api/Applicant/VerifyOtp
         ///     {
@@ -91,14 +100,24 @@ namespace SankalpAPI.Controllers
         ///       "session": "2025"
         ///     }
         /// 
-        /// Target External API:
+        /// Sample Request (Internal OTP-based Applicant Registration):
         /// 
-        ///     http://10.133.20.151/eLabharthi/api/Beneficiary/verify-otp
+        ///     POST /api/Applicant/VerifyOtp
+        ///     {
+        ///       "portal_id": 5,
+        ///       "mobile_no": "9507637005",
+        ///       "otp": "123456",
+        ///       "deviceid": "DEV123",
+        ///       "session": "2026",
+        ///       "UserType": "2"
+        ///     }
         /// </remarks>
         [HttpPost("VerifyOtp")]
         [ProducesResponseType(typeof(VerifyOtpResponse), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status429TooManyRequests)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status502BadGateway)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status504GatewayTimeout)]
         [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status500InternalServerError)]
@@ -135,6 +154,47 @@ namespace SankalpAPI.Controllers
         }
 
         /// <summary>
+        /// Dedicated endpoint to verify the server-generated OTP for portals without an external portal URL
+        /// and register the applicant portal mapping in tbl_map_user_portal.
+        /// </summary>
+        /// <remarks>
+        /// Sample Request:
+        /// 
+        ///     POST /api/Applicant/VerifyApplicantOtp
+        ///     {
+        ///       "portal_id": 5,
+        ///       "mobile_no": "9507637005",
+        ///       "otp": "123456",
+        ///       "deviceid": "DEV123",
+        ///       "session": "2026",
+        ///       "UserType": "2"
+        ///     }
+        /// </remarks>
+        [HttpPost("VerifyApplicantOtp")]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status409Conflict)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status429TooManyRequests)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> VerifyApplicantOtp([FromBody] VerifyApplicantOtpRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _applicantService.VerifyApplicantOtpAsync(request, cancellationToken);
+
+            if (response.StatusCode == StatusCodes.Status400BadRequest)
+            {
+                return BadRequest(response);
+            }
+
+            if (response.StatusCode == StatusCodes.Status404NotFound)
+            {
+                return NotFound(response);
+            }
+
+            return StatusCode(response.StatusCode, response);
+        }
+
+        /// <summary>
         /// Fetches beneficiary messages from the external portal API (eLabharthi http://10.133.20.151/eLabharthi/api/Beneficiary/Get_Beneficiary_Messages),
         /// saves each message into tbl_Message (including mobile number), and records the synced state in tbl_Message_log.
         /// </summary>
@@ -155,6 +215,53 @@ namespace SankalpAPI.Controllers
         public async Task<IActionResult> GetBeneficiaryMessages([FromBody] GetBeneficiaryMessagesRequest request, CancellationToken cancellationToken)
         {
             var response = await _applicantService.GetBeneficiaryMessagesAsync(request, cancellationToken);
+
+            if (response.StatusCode == StatusCodes.Status400BadRequest)
+            {
+                return BadRequest(response);
+            }
+
+            if (response.StatusCode == StatusCodes.Status404NotFound)
+            {
+                return NotFound(response);
+            }
+
+            if (response.StatusCode == StatusCodes.Status502BadGateway)
+            {
+                return StatusCode(StatusCodes.Status502BadGateway, response);
+            }
+
+            if (response.StatusCode == StatusCodes.Status504GatewayTimeout)
+            {
+                return StatusCode(StatusCodes.Status504GatewayTimeout, response);
+            }
+
+            return StatusCode(response.StatusCode, response);
+        }
+
+        /// <summary>
+        /// Fetches pensioner/beneficiary status from the external portal API (eLabharthi http://10.133.20.151/eLabharthi/api/Beneficiary/Get_Beneficiary_Status)
+        /// passing portalId, mobileNo, and beneficiaryNo.
+        /// </summary>
+        /// <remarks>
+        /// Sample Request:
+        /// 
+        ///     POST /api/Applicant/GetBeneficiaryStatus
+        ///     {
+        ///       "portalId": 1,
+        ///       "mobileNo": "9097372728",
+        ///       "beneficiaryNo": "000000200577"
+        ///     }
+        /// </remarks>
+        [HttpPost("GetBeneficiaryStatus")]
+        [ProducesResponseType(typeof(BeneficiaryStatusResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status502BadGateway)]
+        [ProducesResponseType(typeof(ApplicantResponse), StatusCodes.Status504GatewayTimeout)]
+        public async Task<IActionResult> GetBeneficiaryStatus([FromBody] GetBeneficiaryStatusRequest request, CancellationToken cancellationToken)
+        {
+            var response = await _applicantService.GetBeneficiaryStatusAsync(request, cancellationToken);
 
             if (response.StatusCode == StatusCodes.Status400BadRequest)
             {

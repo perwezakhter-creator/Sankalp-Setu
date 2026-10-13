@@ -154,6 +154,11 @@ namespace SankalpAPI.Model
         [JsonProperty("status")]
         public bool Status { get; set; }
 
+        [JsonPropertyName("code")]
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+        [JsonProperty("code", NullValueHandling = NullValueHandling.Ignore)]
+        public int? Code { get; set; }
+
         [JsonPropertyName("message")]
         [JsonProperty("message")]
         public string Message { get; set; } = string.Empty;
@@ -188,9 +193,13 @@ namespace SankalpAPI.Model
     /// <summary>
     /// Request model for verifying OTP.
     /// Supports a_Id as a single number (23) or an array of numbers ([23, 24]).
+    /// Also supports OTP-based applicant registration when portal URL is unavailable.
     /// </summary>
     public class VerifyOtpRequest
     {
+        private long _portalId = 1;
+        private bool _portalIdExplicitlySet;
+
         [JsonPropertyName("a_Id")]
         [JsonProperty("a_Id")]
         [System.Text.Json.Serialization.JsonConverter(typeof(SankalpAPI.Helper.FlexibleLongListConverter))]
@@ -215,7 +224,19 @@ namespace SankalpAPI.Model
 
         [JsonPropertyName("portal_id")]
         [JsonProperty("portal_id")]
-        public long PortalId { get; set; } = 1;
+        public long PortalId
+        {
+            get => _portalId;
+            set
+            {
+                _portalId = value;
+                _portalIdExplicitlySet = true;
+            }
+        }
+
+        [JsonPropertyName("UserType")]
+        [JsonProperty("UserType")]
+        public string? UserType { get; set; }
 
         [JsonPropertyName("client_key")]
         [JsonProperty("client_key")]
@@ -224,6 +245,298 @@ namespace SankalpAPI.Model
         [JsonPropertyName("user_id")]
         [JsonProperty("user_id")]
         public string? UserId { get; set; }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
+        public bool IsPortalIdExplicitlySet => _portalIdExplicitlySet;
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public Dictionary<string, System.Text.Json.JsonElement>? AdditionalFields { get; set; }
+
+        public string ResolveMobileNo()
+        {
+            if (!string.IsNullOrWhiteSpace(MobileNo))
+                return MobileNo;
+
+            return TryGetExtensionString("mobile_no")
+                ?? TryGetExtensionString("mobile")
+                ?? string.Empty;
+        }
+
+        public string? ResolveDeviceId()
+        {
+            if (!string.IsNullOrWhiteSpace(DeviceId))
+                return DeviceId;
+
+            return TryGetExtensionString("deviceid")
+                ?? TryGetExtensionString("device_id");
+        }
+
+        public string? ResolveUserType()
+        {
+            if (!string.IsNullOrWhiteSpace(UserType))
+                return UserType;
+
+            return TryGetExtensionString("user_type")
+                ?? TryGetExtensionString("user_type_id")
+                ?? TryGetExtensionString("User_Type_ID");
+        }
+
+        public long? ResolveExplicitPortalId()
+        {
+            if (_portalIdExplicitlySet && _portalId > 0)
+                return _portalId;
+
+            if (AdditionalFields != null)
+            {
+                foreach (var key in new[] { "portalId", "PortalId", "portal_id" })
+                {
+                    if (AdditionalFields.TryGetValue(key, out var elem))
+                    {
+                        if (elem.ValueKind == System.Text.Json.JsonValueKind.Number && elem.TryGetInt64(out long val) && val > 0)
+                            return val;
+                        if (elem.ValueKind == System.Text.Json.JsonValueKind.String && long.TryParse(elem.GetString(), out long strVal) && strVal > 0)
+                            return strVal;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private string? TryGetExtensionString(string key)
+        {
+            if (AdditionalFields == null)
+                return null;
+
+            foreach (var kvp in AdditionalFields)
+            {
+                if (string.Equals(kvp.Key, key, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    if (kvp.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                        return kvp.Value.GetString();
+                    if (kvp.Value.ValueKind == System.Text.Json.JsonValueKind.Number)
+                        return kvp.Value.GetRawText();
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Request model for verifying OTP during OTP-based applicant registration and portal mapping.
+    /// </summary>
+    public class VerifyApplicantOtpRequest
+    {
+        [JsonPropertyName("portal_id")]
+        [JsonProperty("portal_id")]
+        public long PortalId { get; set; }
+
+        [JsonPropertyName("mobile_no")]
+        [JsonProperty("mobile_no")]
+        public string MobileNo { get; set; } = string.Empty;
+
+        [JsonPropertyName("otp")]
+        [JsonProperty("otp")]
+        public string Otp { get; set; } = string.Empty;
+
+        [JsonPropertyName("deviceid")]
+        [JsonProperty("deviceid")]
+        public string? DeviceId { get; set; }
+
+        [JsonPropertyName("session")]
+        [JsonProperty("session")]
+        public string? Session { get; set; }
+
+        [JsonPropertyName("UserType")]
+        [JsonProperty("UserType")]
+        public string? UserType { get; set; }
+
+        [JsonPropertyName("client_key")]
+        [JsonProperty("client_key")]
+        public string? ClientKey { get; set; }
+
+        [System.Text.Json.Serialization.JsonExtensionData]
+        public Dictionary<string, System.Text.Json.JsonElement>? AdditionalFields { get; set; }
+
+        public string ResolveMobileNo()
+        {
+            if (!string.IsNullOrWhiteSpace(MobileNo))
+                return MobileNo;
+
+            return TryGetExtensionString("mobileNo")
+                ?? TryGetExtensionString("mobile")
+                ?? string.Empty;
+        }
+
+        public string? ResolveDeviceId()
+        {
+            if (!string.IsNullOrWhiteSpace(DeviceId))
+                return DeviceId;
+
+            return TryGetExtensionString("deviceId")
+                ?? TryGetExtensionString("device_id");
+        }
+
+        public string? ResolveUserType()
+        {
+            if (!string.IsNullOrWhiteSpace(UserType))
+                return UserType;
+
+            return TryGetExtensionString("user_type")
+                ?? TryGetExtensionString("user_type_id")
+                ?? TryGetExtensionString("User_Type_ID");
+        }
+
+        public long? ResolvePortalId()
+        {
+            if (PortalId > 0)
+                return PortalId;
+
+            if (AdditionalFields != null)
+            {
+                foreach (var key in new[] { "portalId", "PortalId", "portal_id" })
+                {
+                    if (AdditionalFields.TryGetValue(key, out var elem))
+                    {
+                        if (elem.ValueKind == System.Text.Json.JsonValueKind.Number && elem.TryGetInt64(out long val) && val > 0)
+                            return val;
+                        if (elem.ValueKind == System.Text.Json.JsonValueKind.String && long.TryParse(elem.GetString(), out long strVal) && strVal > 0)
+                            return strVal;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private string? TryGetExtensionString(string key)
+        {
+            if (AdditionalFields == null)
+                return null;
+
+            foreach (var kvp in AdditionalFields)
+            {
+                if (string.Equals(kvp.Key, key, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    if (kvp.Value.ValueKind == System.Text.Json.JsonValueKind.String)
+                        return kvp.Value.GetString();
+                    if (kvp.Value.ValueKind == System.Text.Json.JsonValueKind.Number)
+                        return kvp.Value.GetRawText();
+                }
+            }
+
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Response payload returned when OTP is generated and sent for portals without an external portal URL.
+    /// </summary>
+    public class ApplicantOtpSendData
+    {
+        [JsonPropertyName("portal_id")]
+        [JsonProperty("portal_id")]
+        public long PortalId { get; set; }
+
+        [JsonPropertyName("portal_name")]
+        [JsonProperty("portal_name")]
+        public string PortalName { get; set; } = string.Empty;
+
+        [JsonPropertyName("mobile_no")]
+        [JsonProperty("mobile_no")]
+        public string MobileNo { get; set; } = string.Empty;
+
+        [JsonPropertyName("masked_mobile")]
+        [JsonProperty("masked_mobile")]
+        public string MaskedMobile { get; set; } = string.Empty;
+
+        [JsonPropertyName("deviceid")]
+        [JsonProperty("deviceid")]
+        public string? DeviceId { get; set; }
+
+        [JsonPropertyName("session")]
+        [JsonProperty("session")]
+        public string? Session { get; set; }
+
+        [JsonPropertyName("UserType")]
+        [JsonProperty("UserType")]
+        public string? UserType { get; set; }
+
+        [JsonPropertyName("otp_required")]
+        [JsonProperty("otp_required")]
+        public bool OtpRequired { get; set; } = true;
+
+        [JsonPropertyName("otp_expiry_minutes")]
+        [JsonProperty("otp_expiry_minutes")]
+        public int OtpExpiryMinutes { get; set; }
+    }
+
+    /// <summary>
+    /// Response payload returned after successful OTP verification and insertion into tbl_map_user_portal.
+    /// Does not expose OTP or secretkey.
+    /// </summary>
+    public class ApplicantPortalRegistrationData
+    {
+        [JsonPropertyName("user_portal_id")]
+        [JsonProperty("user_portal_id")]
+        public long UserPortalId { get; set; }
+
+        [JsonPropertyName("portal_id")]
+        [JsonProperty("portal_id")]
+        public long PortalId { get; set; }
+
+        [JsonPropertyName("User_Type_ID")]
+        [JsonProperty("User_Type_ID")]
+        public long? UserTypeId { get; set; }
+
+        [JsonPropertyName("mobile")]
+        [JsonProperty("mobile")]
+        public string Mobile { get; set; } = string.Empty;
+
+        [JsonPropertyName("userid")]
+        [JsonProperty("userid")]
+        public string UserId { get; set; } = string.Empty;
+
+        [JsonPropertyName("token")]
+        [JsonProperty("token")]
+        public string Token { get; set; } = string.Empty;
+
+        [JsonPropertyName("deviceid")]
+        [JsonProperty("deviceid")]
+        public string? DeviceId { get; set; }
+
+        [JsonPropertyName("district_code")]
+        [JsonProperty("district_code")]
+        public long? DistrictCode { get; set; }
+
+        [JsonPropertyName("block_code")]
+        [JsonProperty("block_code")]
+        public long? BlockCode { get; set; }
+
+        [JsonPropertyName("panchayatcode")]
+        [JsonProperty("panchayatcode")]
+        public long? PanchayatCode { get; set; }
+
+        [JsonPropertyName("is_verified")]
+        [JsonProperty("is_verified")]
+        public string IsVerified { get; set; } = "Y";
+
+        [JsonPropertyName("verifyDate")]
+        [JsonProperty("verifyDate")]
+        public DateTime VerifyDate { get; set; }
+    }
+
+    /// <summary>
+    /// Result returned from repository after atomic OTP verification and tbl_map_user_portal insertion.
+    /// </summary>
+    public class ApplicantOtpVerificationResult
+    {
+        public bool Success { get; set; }
+        public int StatusCode { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public ApplicantPortalRegistrationData? Data { get; set; }
     }
 
     /// <summary>
@@ -429,6 +742,102 @@ namespace SankalpAPI.Model
         [JsonPropertyName("token")]
         [JsonProperty("token")]
         public string Token { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Request model for fetching beneficiary/pensioner status from external eLabharthi API.
+    /// </summary>
+    public class GetBeneficiaryStatusRequest
+    {
+        /// <summary>
+        /// Portal identifier from mst_portal table (defaults to 1 for eLabharthi).
+        /// </summary>
+        /// <example>1</example>
+        [JsonPropertyName("portalId")]
+        [JsonProperty("portalId")]
+        public long PortalId { get; set; } = 1;
+
+        /// <summary>
+        /// Registered 10-digit mobile number of the applicant.
+        /// </summary>
+        /// <example>9097372728</example>
+        [JsonPropertyName("mobileNo")]
+        [JsonProperty("mobileNo")]
+        public string MobileNo { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Beneficiary identification number.
+        /// </summary>
+        /// <example>000000200577</example>
+        [JsonPropertyName("beneficiaryNo")]
+        [JsonProperty("beneficiaryNo")]
+        public string BeneficiaryNo { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Key-value label pair inside beneficiary details list.
+    /// </summary>
+    public class BeneficiaryDetailItem
+    {
+        [JsonPropertyName("label")]
+        [JsonProperty("label")]
+        public string Label { get; set; } = string.Empty;
+
+        [JsonPropertyName("value")]
+        [JsonProperty("value")]
+        public string Value { get; set; } = string.Empty;
+    }
+
+    /// <summary>
+    /// Data payload returned by Get_Beneficiary_Status API.
+    /// </summary>
+    public class BeneficiaryStatusData
+    {
+        [JsonPropertyName("firstName")]
+        [JsonProperty("firstName")]
+        public string? FirstName { get; set; }
+
+        [JsonPropertyName("fatherHusbandName")]
+        [JsonProperty("fatherHusbandName")]
+        public string? FatherHusbandName { get; set; }
+
+        [JsonPropertyName("dateofBirth")]
+        [JsonProperty("dateofBirth")]
+        public string? DateofBirth { get; set; }
+
+        [JsonPropertyName("gender")]
+        [JsonProperty("gender")]
+        public string? Gender { get; set; }
+
+        [JsonPropertyName("mobileNo")]
+        [JsonProperty("mobileNo")]
+        public string? MobileNo { get; set; }
+
+        [JsonPropertyName("beneficiaryDetails")]
+        [JsonProperty("beneficiaryDetails")]
+        public List<BeneficiaryDetailItem> BeneficiaryDetails { get; set; } = new List<BeneficiaryDetailItem>();
+    }
+
+    /// <summary>
+    /// Swagger schema documentation model for GetBeneficiaryStatus response.
+    /// </summary>
+    public class BeneficiaryStatusResponse
+    {
+        [JsonPropertyName("status")]
+        [JsonProperty("status")]
+        public bool Status { get; set; }
+
+        [JsonPropertyName("code")]
+        [JsonProperty("code")]
+        public int Code { get; set; } = 200;
+
+        [JsonPropertyName("message")]
+        [JsonProperty("message")]
+        public string Message { get; set; } = string.Empty;
+
+        [JsonPropertyName("data")]
+        [JsonProperty("data")]
+        public BeneficiaryStatusData? Data { get; set; }
     }
 
     /// <summary>

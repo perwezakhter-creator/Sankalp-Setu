@@ -14,7 +14,7 @@ namespace SankalpAPI.Helper
             _exceptionLogging = exceptionLogging;
         }
 
-        private SqlConnection GetConnection()
+        public SqlConnection GetConnection()
         {
             string? connectionString =
                 _config.GetConnectionString("DefaultConnection");

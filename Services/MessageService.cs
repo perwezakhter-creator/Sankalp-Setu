@@ -224,11 +224,11 @@ namespace SankalpAPI.Services
             }
         }
 
-        public async Task<object> GetBroadcastMessagesAsync()
+        public async Task<object> GetBroadcastMessagesAsync(GetBroadCastMessageRequest request)
         {
             try
             {
-                var list = await _messageRepository.GetBroadcastMessagesAsync();
+                var list = await _messageRepository.GetBroadcastMessagesAsync(request.DeviceID);
 
                 if (list == null || list.Count == 0)
                 {

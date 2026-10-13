@@ -1,0 +1,10 @@
+----------- Exception Details -----------
+Log Date       : 12-10-2026 15:51:42
+Error Line No  : line 79
+Error Message  : HttpRequestException
+Exception Type : System.Net.Http.HttpRequestException
+Error Location : A connection attempt failed because the connected party did not properly respond after a period of time, or established connection failed because connected host has failed to respond. (192.168.81.15:80)
+Request URL    : /api/Applicant/GetApplicantDetails
+User Host IP   : ::1
+----------------------------------------
+

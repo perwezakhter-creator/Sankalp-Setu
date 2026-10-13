@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -17,7 +20,8 @@ using SankalpAPI.Security;
 namespace SankalpAPI.Services
 {
     /// <summary>
-    /// Service to communicate with external portal APIs to fetch applicant details.
+    /// Service to communicate with external portal APIs to fetch applicant details,
+    /// or execute OTP-based applicant registration and portal mapping when portal URL is unavailable.
     /// Returns standardized { status, message, data } format.
     /// </summary>
     public class ApplicantService : IApplicantService
@@ -25,11 +29,17 @@ namespace SankalpAPI.Services
         private const string SendOtpEndpoint = "/api/Beneficiary/send-otp";
         private const string VerifyOtpEndpoint = "/api/Beneficiary/verify-otp";
         private const string GetBeneficiaryMessagesEndpoint = "/api/Beneficiary/Get_Beneficiary_Messages";
-        private const string DefaultPortalUrl = "http://10.133.20.151/eLabharthiAPI";
+        private const string Get_Beneficiary_Status = "/api/Beneficiary/Get_Beneficiary_Status";
+        private const string DefaultPortalUrl = "http://10.133.20.151/eLabharthi";
         private const int DefaultTimeoutSeconds = 15;
+        private const int OtpResendCooldownSeconds = 30;
+        private const int MaxOtpRequestsPerWindow = 5;
+        private const int OtpRateLimitWindowMinutes = 10;
+        private const int MaxOtpVerifyRetryAttempts = 5;
 
         private readonly IPortalRepository _portalRepository;
         private readonly IApplicantRepository _applicantRepository;
+        private readonly ISmsNotificationService _smsService;
         private readonly ClientTokenService _clientTokenService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<ApplicantService> _logger;
@@ -38,6 +48,7 @@ namespace SankalpAPI.Services
         public ApplicantService(
             IPortalRepository portalRepository, 
             IApplicantRepository applicantRepository, 
+            ISmsNotificationService smsService,
             ClientTokenService clientTokenService,
             IHttpClientFactory httpClientFactory, 
             ILogger<ApplicantService> logger, 
@@ -45,6 +56,7 @@ namespace SankalpAPI.Services
         {
             _portalRepository = portalRepository;
             _applicantRepository = applicantRepository;
+            _smsService = smsService;
             _clientTokenService = clientTokenService;
             _httpClientFactory = httpClientFactory;
             _logger = logger;
@@ -64,7 +76,7 @@ namespace SankalpAPI.Services
                 };
             }
 
-            string mobileNo = request.MobileNo?.Trim() ?? string.Empty;
+            string mobileNo = NormalizeMobileNumber(request.MobileNo);
             string deviceId = request.DeviceId?.Trim() ?? string.Empty;
             string session = request.Session?.Trim() ?? string.Empty;
             string userType = request.UserType?.Trim() ?? string.Empty;
@@ -81,13 +93,13 @@ namespace SankalpAPI.Services
                 };
             }
 
-            if (string.IsNullOrWhiteSpace(mobileNo))
+            if (string.IsNullOrWhiteSpace(mobileNo) || !IsValidMobileNumber(mobileNo))
             {
                 return new ApplicantResponse
                 {
                     Status = false,
                     StatusCode = (int)HttpStatusCode.BadRequest,
-                    Message = "A valid mobile number is required.",
+                    Message = "A valid 10-digit mobile number is required.",
                     Data = null
                 };
             }
@@ -95,30 +107,16 @@ namespace SankalpAPI.Services
             try
             {
                 // 4. Resolve portal information from database (mst_portal & tbl_map_user_portal)
-                var mapping = await _portalRepository.GetPortalAndUserMappingAsync(request.PortalId, mobileNo);
+                var mapping = await ResolvePortalMappingAsync(request.PortalId, mobileNo);
                 if (mapping == null)
                 {
-                    // Fallback to default eLabharthi portal if portal ID is 0 or 1
-                    if (request.PortalId == 0 || request.PortalId == 1)
+                    return new ApplicantResponse
                     {
-                        mapping = new PortalUserMappingDto
-                        {
-                            PortalId = request.PortalId,
-                            PortalName = "eLabharthi",
-                            PortalUrl = DefaultPortalUrl,
-                            IsActive = "Y"
-                        };
-                    }
-                    else
-                    {
-                        return new ApplicantResponse
-                        {
-                            Status = false,
-                            StatusCode = (int)HttpStatusCode.NotFound,
-                            Message = $"Portal ID {request.PortalId} was not found in mst_portal.",
-                            Data = null
-                        };
-                    }
+                        Status = false,
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        Message = $"Portal ID {request.PortalId} was not found in mst_portal.",
+                        Data = null
+                    };
                 }
 
                 // 5. Validate portal active state
@@ -134,7 +132,14 @@ namespace SankalpAPI.Services
                     };
                 }
 
-                // 6. Construct target external API URL
+                // 6. Step 1: Check Portal URL Availability
+                // If portal URL is not configured/available in mst_portal, invoke OTP-based applicant registration flow
+                if (!IsPortalUrlAvailable(mapping.PortalUrl))
+                {
+                    return await InitiateOtpApplicantRegistrationAsync(mapping, mobileNo, deviceId, session, userType, cancellationToken);
+                }
+
+                // 7. Construct target external API URL (existing portal-available flow unchanged)
                 string targetUrl = BuildTargetUrl(mapping.PortalUrl, SendOtpEndpoint);
                 if (string.IsNullOrWhiteSpace(targetUrl) || !Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
                 {
@@ -359,11 +364,16 @@ namespace SankalpAPI.Services
 
             // 1. Decrypt parameters if encrypted
             string clientKey = DecryptClientKey(request.ClientKey);
-            string mobileNo = DecryptField(request.MobileNo, clientKey);
+            string rawMobile = request.ResolveMobileNo();
+            string? rawDevice = request.ResolveDeviceId();
+            string? rawUserType = request.ResolveUserType();
+
+            string mobileNo = NormalizeMobileNumber(DecryptField(rawMobile, clientKey));
             string otp = DecryptField(request.Otp, clientKey);
-            string? deviceId = DecryptField(request.DeviceId, clientKey);
+            string? deviceId = DecryptField(rawDevice, clientKey);
             string? userId = DecryptField(request.UserId, clientKey);
             string? session = DecryptField(request.Session, clientKey);
+            string? userType = DecryptField(rawUserType, clientKey);
 
             // 2. Validate mandatory parameters
             if (request.PortalId < 0)
@@ -377,13 +387,13 @@ namespace SankalpAPI.Services
                 };
             }
 
-            if (string.IsNullOrWhiteSpace(mobileNo))
+            if (string.IsNullOrWhiteSpace(mobileNo) || !IsValidMobileNumber(mobileNo))
             {
                 return new ApplicantResponse
                 {
                     Status = false,
                     StatusCode = (int)HttpStatusCode.BadRequest,
-                    Message = "A valid mobile number is required.",
+                    Message = "A valid 10-digit mobile number is required.",
                     Data = null
                 };
             }
@@ -401,31 +411,32 @@ namespace SankalpAPI.Services
 
             try
             {
+                // Resolve effective portal ID: if portal_id was not explicitly passed in request,
+                // check if there is a pending OTP registration attempt for this mobile number
+                long? explicitPortalId = request.ResolveExplicitPortalId();
+                long effectivePortalId = explicitPortalId ?? request.PortalId;
+
+                if (!explicitPortalId.HasValue && (request.A_Id == null || request.A_Id.Count == 0))
+                {
+                    int expiryMinutes = _smsService.GetOtpExpiryMinutes();
+                    long? pendingPortalId = await _applicantRepository.GetPendingOtpPortalIdAsync(mobileNo, expiryMinutes);
+                    if (pendingPortalId.HasValue && pendingPortalId.Value > 0)
+                    {
+                        effectivePortalId = pendingPortalId.Value;
+                    }
+                }
+
                 // 3. Resolve portal to verify portal exists and get name/url
-                var mapping = await _portalRepository.GetPortalAndUserMappingAsync(request.PortalId, mobileNo);
+                var mapping = await ResolvePortalMappingAsync(effectivePortalId, mobileNo);
                 if (mapping == null)
                 {
-                    // Fallback to default eLabharthi portal if portal ID is 0 or 1
-                    if (request.PortalId == 0 || request.PortalId == 1)
+                    return new ApplicantResponse
                     {
-                        mapping = new PortalUserMappingDto
-                        {
-                            PortalId = request.PortalId,
-                            PortalName = "eLabharthi",
-                            PortalUrl = DefaultPortalUrl,
-                            IsActive = "Y"
-                        };
-                    }
-                    else
-                    {
-                        return new ApplicantResponse
-                        {
-                            Status = false,
-                            StatusCode = (int)HttpStatusCode.NotFound,
-                            Message = $"Portal ID {request.PortalId} was not found in mst_portal.",
-                            Data = null
-                        };
-                    }
+                        Status = false,
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        Message = $"Portal ID {effectivePortalId} was not found in mst_portal.",
+                        Data = null
+                    };
                 }
 
                 if (!string.IsNullOrWhiteSpace(mapping.IsActive) && (mapping.IsActive.Equals("N", StringComparison.OrdinalIgnoreCase) || mapping.IsActive == "0"))
@@ -439,7 +450,20 @@ namespace SankalpAPI.Services
                     };
                 }
 
-                // 4. Extract list of a_Id(s)
+                // If portal URL is unavailable, execute server-side OTP verification and tbl_map_user_portal mapping insertion
+                if (!IsPortalUrlAvailable(mapping.PortalUrl))
+                {
+                    return await VerifyOtpAndMapApplicantInternalAsync(
+                        mapping.PortalId,
+                        mobileNo,
+                        otp,
+                        deviceId,
+                        session,
+                        userType,
+                        cancellationToken);
+                }
+
+                // 4. Extract list of a_Id(s) (Existing external portal flow unchanged)
                 var aIdList = new List<long>();
                 if (request.A_Id != null)
                 {
@@ -867,6 +891,490 @@ namespace SankalpAPI.Services
         }
 
         /// <summary>
+        /// Step 2: Initiates OTP-based applicant registration when the portal URL is unavailable.
+        /// Validates request fields, checks duplicate mapping and rate limits, generates a 6-digit OTP,
+        /// sends it via SMS gateway, and stores the hashed OTP bound to the registration attempt.
+        /// Does not insert into tbl_map_user_portal at this stage.
+        /// </summary>
+        private async Task<ApplicantResponse> InitiateOtpApplicantRegistrationAsync(
+            PortalUserMappingDto mapping,
+            string mobileNo,
+            string deviceId,
+            string session,
+            string userType,
+            CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(deviceId))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "A valid deviceid is required.",
+                    Data = null
+                };
+            }
+
+            long? parsedUserTypeId = null;
+            if (!string.IsNullOrWhiteSpace(userType))
+            {
+                if (!long.TryParse(userType.Trim(), out long utId) || utId <= 0)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.BadRequest,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = "A valid numeric UserType is required.",
+                        Data = null
+                    };
+                }
+                parsedUserTypeId = utId;
+            }
+
+            try
+            {
+                // Validate UserType against configured user types for this portal in dbo.UserType (if configured)
+                var configuredUserTypes = await _portalRepository.GetUserTypeByIdAsync(mapping.PortalId);
+                if (configuredUserTypes != null && configuredUserTypes.Count > 0)
+                {
+                    if (!parsedUserTypeId.HasValue)
+                    {
+                        return new ApplicantResponse
+                        {
+                            Status = false,
+                            Code = (int)HttpStatusCode.BadRequest,
+                            StatusCode = (int)HttpStatusCode.BadRequest,
+                            Message = $"UserType is required for portal '{mapping.PortalName}'.",
+                            Data = null
+                        };
+                    }
+
+                    bool isValidUserType = configuredUserTypes.Any(u =>
+                        !string.IsNullOrWhiteSpace(u.UserType_id) &&
+                        long.TryParse(u.UserType_id.Trim(), out long configuredId) &&
+                        configuredId == parsedUserTypeId.Value);
+
+                    if (!isValidUserType)
+                    {
+                        return new ApplicantResponse
+                        {
+                            Status = false,
+                            Code = (int)HttpStatusCode.BadRequest,
+                            StatusCode = (int)HttpStatusCode.BadRequest,
+                            Message = $"Invalid UserType '{userType}' for portal '{mapping.PortalName}' (ID {mapping.PortalId}).",
+                            Data = null
+                        };
+                    }
+                }
+
+                // Prevent duplicate mapping for the same applicant, portal, and user type
+                bool alreadyMapped = await _applicantRepository.CheckApplicantPortalMappingExistsAsync(
+                    mapping.PortalId,
+                    mobileNo,
+                    parsedUserTypeId);
+
+                if (alreadyMapped)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.Conflict,
+                        StatusCode = (int)HttpStatusCode.Conflict,
+                        Message = "Applicant is already registered and mapped with this portal for the specified UserType.",
+                        Data = null
+                    };
+                }
+
+                // Apply OTP resend cooldown and rate limiting
+                var (isAllowed, rateLimitError) = await _applicantRepository.CheckOtpSendRateLimitAsync(
+                    mobileNo,
+                    OtpResendCooldownSeconds,
+                    MaxOtpRequestsPerWindow,
+                    OtpRateLimitWindowMinutes);
+
+                if (!isAllowed)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.TooManyRequests,
+                        StatusCode = (int)HttpStatusCode.TooManyRequests,
+                        Message = rateLimitError ?? "Too many OTP requests. Please try again later.",
+                        Data = null
+                    };
+                }
+
+                // Generate 6-digit cryptographically secure OTP
+                int otpNumber = RandomNumberGenerator.GetInt32(100000, 1000000);
+                string otp = otpNumber.ToString("D6");
+                string otpHash = ClientTokenHasher.Hash(otp);
+
+                // Send OTP via existing SMS service
+                var (smsSuccess, smsMessage) = await _smsService.SendOtpAsync(mobileNo, otp);
+                if (!smsSuccess)
+                {
+                    _logger.LogWarning("OTP SMS delivery failed for portal {PortalId}, mobile {MaskedMobile}: {Reason}",
+                        mapping.PortalId, MaskMobileNumber(mobileNo), smsMessage);
+
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.BadGateway,
+                        StatusCode = (int)HttpStatusCode.BadGateway,
+                        Message = $"Failed to send OTP SMS: {smsMessage}",
+                        Data = null
+                    };
+                }
+
+                // Store hashed OTP securely in tbl_otp with expiration and registration binding
+                bool saved = await _applicantRepository.SaveRegistrationOtpAsync(
+                    mapping.PortalId,
+                    mobileNo,
+                    deviceId,
+                    session,
+                    parsedUserTypeId,
+                    otpHash);
+
+                if (!saved)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.InternalServerError,
+                        StatusCode = (int)HttpStatusCode.InternalServerError,
+                        Message = "Failed to record OTP for applicant registration.",
+                        Data = null
+                    };
+                }
+
+                int expiryMinutes = _smsService.GetOtpExpiryMinutes();
+
+                _logger.LogInformation("Initiated OTP-based applicant registration for portal '{PortalName}' (ID {PortalId}), mobile {MaskedMobile}",
+                    mapping.PortalName, mapping.PortalId, MaskMobileNumber(mobileNo));
+
+                return new ApplicantResponse
+                {
+                    Status = true,
+                    Code = (int)HttpStatusCode.OK,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = "OTP sent successfully to registered mobile number.",
+                    Data = new ApplicantOtpSendData
+                    {
+                        PortalId = mapping.PortalId,
+                        PortalName = mapping.PortalName,
+                        MobileNo = mobileNo,
+                        MaskedMobile = MaskMobileNumber(mobileNo),
+                        DeviceId = deviceId,
+                        Session = string.IsNullOrWhiteSpace(session) ? null : session,
+                        UserType = parsedUserTypeId?.ToString() ?? (string.IsNullOrWhiteSpace(userType) ? null : userType),
+                        OtpRequired = true,
+                        OtpExpiryMinutes = expiryMinutes
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error initiating OTP registration for portal ID {PortalId}, mobile {MaskedMobile}",
+                    mapping.PortalId, MaskMobileNumber(mobileNo));
+                _exceptionLogging.SendErrorToText(ex);
+
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.InternalServerError,
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = "An error occurred while initiating OTP-based applicant registration.",
+                    Data = null
+                };
+            }
+        }
+
+        /// <summary>
+        /// Step 3, 4 & 5: Verifies OTP for OTP-based applicant registration and inserts mapping into tbl_map_user_portal.
+        /// </summary>
+        public async Task<ApplicantResponse> VerifyApplicantOtpAsync(VerifyApplicantOtpRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "Request payload is required.",
+                    Data = null
+                };
+            }
+
+            string clientKey = DecryptClientKey(request.ClientKey);
+            string mobileNo = NormalizeMobileNumber(DecryptField(request.ResolveMobileNo(), clientKey));
+            string otp = DecryptField(request.Otp, clientKey).Trim();
+            string? deviceId = DecryptField(request.ResolveDeviceId(), clientKey);
+            string? session = DecryptField(request.Session, clientKey);
+            string? userType = DecryptField(request.ResolveUserType(), clientKey);
+            long? explicitPortalId = request.ResolvePortalId();
+
+            if (string.IsNullOrWhiteSpace(mobileNo) || !IsValidMobileNumber(mobileNo))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "A valid 10-digit mobile number is required.",
+                    Data = null
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(otp))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "A valid OTP is required.",
+                    Data = null
+                };
+            }
+
+            return await VerifyOtpAndMapApplicantInternalAsync(
+                explicitPortalId,
+                mobileNo,
+                otp,
+                deviceId,
+                session,
+                userType,
+                cancellationToken);
+        }
+
+        private async Task<ApplicantResponse> VerifyOtpAndMapApplicantInternalAsync(
+            long? requestedPortalId,
+            string mobileNo,
+            string otp,
+            string? deviceId,
+            string? session,
+            string? userType,
+            CancellationToken cancellationToken)
+        {
+            string cleanOtp = otp?.Trim() ?? string.Empty;
+            if (!Regex.IsMatch(cleanOtp, @"^[0-9]{6}$"))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "OTP must be a valid 6-digit numeric code.",
+                    Data = null
+                };
+            }
+
+            long? parsedUserTypeId = null;
+            if (!string.IsNullOrWhiteSpace(userType))
+            {
+                if (!long.TryParse(userType.Trim(), out long utId) || utId <= 0)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.BadRequest,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = "A valid numeric UserType is required.",
+                        Data = null
+                    };
+                }
+                parsedUserTypeId = utId;
+            }
+
+            try
+            {
+                // Generate secret key and client token using existing project mechanisms
+                string secretKey = TotpHelper.GenerateBase32Secret(20);
+                string clientToken = _clientTokenService.GenerateToken();
+                string tokenHash = ClientTokenHasher.Hash(clientToken);
+                int expiryMinutes = _smsService.GetOtpExpiryMinutes();
+
+                var result = await _applicantRepository.VerifyOtpAndInsertPortalMappingAsync(
+                    requestedPortalId,
+                    mobileNo,
+                    cleanOtp,
+                    deviceId,
+                    session,
+                    parsedUserTypeId,
+                    expiryMinutes,
+                    MaxOtpVerifyRetryAttempts,
+                    secretKey,
+                    clientToken,
+                    tokenHash);
+
+                if (!result.Success)
+                {
+                    _logger.LogWarning("OTP verification failed for mobile {MaskedMobile}: {Reason}",
+                        MaskMobileNumber(mobileNo), result.Message);
+
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = result.StatusCode,
+                        StatusCode = result.StatusCode,
+                        Message = result.Message,
+                        Data = null
+                    };
+                }
+
+                _logger.LogInformation("Successfully verified OTP and inserted portal mapping (user_portal_id={UserPortalId}) for portal {PortalId}, mobile {MaskedMobile}",
+                    result.Data?.UserPortalId, result.Data?.PortalId, MaskMobileNumber(mobileNo));
+
+                return new ApplicantResponse
+                {
+                    Status = true,
+                    Code = (int)HttpStatusCode.OK,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = result.Message,
+                    Data = result.Data
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error verifying OTP and mapping applicant for mobile {MaskedMobile}", MaskMobileNumber(mobileNo));
+                _exceptionLogging.SendErrorToText(ex);
+
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.InternalServerError,
+                    StatusCode = (int)HttpStatusCode.InternalServerError,
+                    Message = "An error occurred while verifying OTP and mapping applicant.",
+                    Data = null
+                };
+            }
+        }
+
+        /// <summary>
+        /// Dynamically resolves portal information and user mapping from mst_portal & tbl_map_user_portal.
+        /// Supports all registered portals (including portals where portal_url is empty/unavailable such as NIC Portal 5).
+        /// </summary>
+        private async Task<PortalUserMappingDto?> ResolvePortalMappingAsync(long portalId, string? mobileNo)
+        {
+            long effectivePortalId = portalId <= 0 ? 1 : portalId;
+
+            // 1. First attempt: resolve portal with user credentials mapping
+            var mapping = await _portalRepository.GetPortalAndUserMappingAsync(effectivePortalId, mobileNo);
+            if (mapping != null)
+            {
+                if (effectivePortalId == 1 && string.IsNullOrWhiteSpace(mapping.PortalUrl))
+                {
+                    mapping.PortalUrl = DefaultPortalUrl;
+                }
+                return mapping;
+            }
+
+            // 2. Second attempt: resolve portal directly from mst_portal (e.g. Portal 4 Postmatric, Portal 3 Ashwin, Portal 5 NIC)
+            var portal = await _portalRepository.GetPortalByIdAsync(effectivePortalId);
+            if (portal != null)
+            {
+                return new PortalUserMappingDto
+                {
+                    PortalId = portal.PortalId,
+                    PortalName = portal.PortalName ?? string.Empty,
+                    PortalUrl = (effectivePortalId == 1 && string.IsNullOrWhiteSpace(portal.PortalUrl))
+                        ? DefaultPortalUrl
+                        : portal.PortalUrl,
+                    IsActive = portal.IsActive
+                };
+            }
+
+            // 3. Fallback to default eLabharthi configuration only if portal ID was 0 or 1
+            if (effectivePortalId == 1)
+            {
+                return new PortalUserMappingDto
+                {
+                    PortalId = effectivePortalId,
+                    PortalName = "eLabharthi",
+                    PortalUrl = DefaultPortalUrl,
+                    IsActive = "Y"
+                };
+            }
+
+            return null;
+        }
+
+        private static bool IsPortalUrlAvailable(string? portalUrl)
+        {
+            if (string.IsNullOrWhiteSpace(portalUrl))
+                return false;
+
+            return Uri.TryCreate(portalUrl.Trim(), UriKind.Absolute, out var uri) &&
+                   (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
+        }
+
+        private static string NormalizeMobileNumber(string? mobile)
+        {
+            if (string.IsNullOrWhiteSpace(mobile))
+                return string.Empty;
+
+            string trimmed = mobile.Trim();
+            string digits = new string(trimmed.Where(char.IsDigit).ToArray());
+            if (digits.Length == 12 && digits.StartsWith("91", StringComparison.Ordinal))
+            {
+                digits = digits.Substring(2);
+            }
+            else if (digits.Length == 11 && digits.StartsWith("0", StringComparison.Ordinal))
+            {
+                digits = digits.Substring(1);
+            }
+
+            return digits;
+        }
+
+        private static bool IsValidMobileNumber(string? mobile)
+        {
+            if (string.IsNullOrWhiteSpace(mobile))
+                return false;
+
+            return Regex.IsMatch(mobile.Trim(), @"^[0-9]{10}$");
+        }
+
+        private static string MaskMobileNumber(string? mobile)
+        {
+            if (string.IsNullOrWhiteSpace(mobile) || mobile.Length < 4)
+                return mobile ?? string.Empty;
+
+            return new string('X', mobile.Length - 4) + mobile.Substring(mobile.Length - 4);
+        }
+
+        /// <summary>
+        /// Dynamically resolves portal metadata from mst_portal.
+        /// </summary>
+        private async Task<PortalDto?> ResolvePortalAsync(long portalId)
+        {
+            long effectivePortalId = portalId <= 0 ? 1 : portalId;
+
+            var portal = await _portalRepository.GetPortalByIdAsync(effectivePortalId);
+            if (portal != null && !string.IsNullOrWhiteSpace(portal.PortalUrl))
+            {
+                return portal;
+            }
+
+            // Fallback for default eLabharthi portal
+            if (effectivePortalId == 1)
+            {
+                return new PortalDto
+                {
+                    PortalId = effectivePortalId,
+                    PortalName = "eLabharthi",
+                    PortalUrl = DefaultPortalUrl,
+                    IsActive = "Y"
+                };
+            }
+
+            return null;
+        }
+
+        /// <summary>
         /// Builds the target external API URL combining the portal's base URL and the endpoint.
         /// </summary>
         private static string BuildTargetUrl(string? baseUrl, string endpoint)
@@ -1005,9 +1513,32 @@ namespace SankalpAPI.Services
                 portalId = resolvedPortalId;
 
                 // 2. Resolve portal information (URL)
-                var portal = await _portalRepository.GetPortalByIdAsync(portalId);
-                string portalUrl = !string.IsNullOrWhiteSpace(portal?.PortalUrl) ? portal.PortalUrl : DefaultPortalUrl;
-                string portalName = !string.IsNullOrWhiteSpace(portal?.PortalName) ? portal.PortalName : "eLabharthi";
+                var portal = await ResolvePortalAsync(portalId);
+                if (portal == null)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        Message = $"Portal ID {portalId} was not found in mst_portal.",
+                        Data = null
+                    };
+                }
+
+                if (!string.IsNullOrWhiteSpace(portal.IsActive) &&
+                    (portal.IsActive.Equals("N", StringComparison.OrdinalIgnoreCase) || portal.IsActive == "0"))
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = $"Portal '{portal.PortalName}' (ID {portalId}) is currently marked inactive.",
+                        Data = null
+                    };
+                }
+
+                string portalUrl = !string.IsNullOrWhiteSpace(portal.PortalUrl) ? portal.PortalUrl : DefaultPortalUrl;
+                string portalName = !string.IsNullOrWhiteSpace(portal.PortalName) ? portal.PortalName : "Unknown Portal";
 
                 // 3. Construct target external API URL (http://10.133.20.151/eLabharthiAPI/api/Beneficiary/Get_Beneficiary_Messages)
                 targetUrl = BuildTargetUrl(portalUrl, GetBeneficiaryMessagesEndpoint);
@@ -1150,6 +1681,8 @@ namespace SankalpAPI.Services
             }
         }
 
+      
+
         private static List<BeneficiaryMessageItem> ExtractBeneficiaryMessages(string responseBody)
         {
             var list = new List<BeneficiaryMessageItem>();
@@ -1204,6 +1737,239 @@ namespace SankalpAPI.Services
             catch { }
 
             return list;
+        }
+
+        public async Task<ApplicantResponse> GetBeneficiaryStatusAsync(GetBeneficiaryStatusRequest request, CancellationToken cancellationToken = default)
+        {
+            if (request == null)
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "Request payload is required.",
+                    Data = null
+                };
+            }
+
+            string mobileNo = request.MobileNo?.Trim() ?? string.Empty;
+            string beneficiaryNo = request.BeneficiaryNo?.Trim() ?? string.Empty;
+            long portalId = request.PortalId;
+
+            if (portalId < 0)
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "A valid portalId is required.",
+                    Data = null
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(mobileNo))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "A valid mobile number is required.",
+                    Data = null
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(beneficiaryNo))
+            {
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadRequest,
+                    StatusCode = (int)HttpStatusCode.BadRequest,
+                    Message = "Beneficiary number is required.",
+                    Data = null
+                };
+            }
+
+            string targetUrl = string.Empty;
+
+            try
+            {
+                // 1. Resolve portal information from database (mst_portal)
+                var portal = await ResolvePortalAsync(portalId);
+                if (portal == null)
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.NotFound,
+                        StatusCode = (int)HttpStatusCode.NotFound,
+                        Message = $"Portal ID {portalId} was not found in mst_portal.",
+                        Data = null
+                    };
+                }
+
+                string portalUrl = !string.IsNullOrWhiteSpace(portal.PortalUrl) ? portal.PortalUrl : DefaultPortalUrl;
+                string portalName = !string.IsNullOrWhiteSpace(portal.PortalName) ? portal.PortalName : "Unknown Portal";
+
+                if (!string.IsNullOrWhiteSpace(portal.IsActive) &&
+                    (portal.IsActive.Equals("N", StringComparison.OrdinalIgnoreCase) || portal.IsActive == "0"))
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.BadRequest,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = $"Portal '{portalName}' (ID {portalId}) is currently marked inactive.",
+                        Data = null
+                    };
+                }
+
+                // 2. Construct target external API URL (http://10.133.20.151/eLabharthi/api/Beneficiary/Get_Beneficiary_Status)
+                targetUrl = BuildTargetUrl(portalUrl, Get_Beneficiary_Status);
+                if (string.IsNullOrWhiteSpace(targetUrl) || !Uri.TryCreate(targetUrl, UriKind.Absolute, out var targetUri))
+                {
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = (int)HttpStatusCode.BadRequest,
+                        StatusCode = (int)HttpStatusCode.BadRequest,
+                        Message = $"Invalid portal URL configured for portal '{portalName}': '{targetUrl}'",
+                        Data = null
+                    };
+                }
+
+                // 3. Prepare forward payload
+                var forwardPayload = new Dictionary<string, object?>
+                {
+                    ["portalId"] = portalId,
+                    ["mobileNo"] = mobileNo,
+                    ["beneficiaryNo"] = beneficiaryNo
+                };
+
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Post, targetUri);
+                httpRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                httpRequest.Headers.TryAddWithoutValidation("X-Correlation-ID", Guid.NewGuid().ToString("N"));
+
+                string jsonContent = JsonConvert.SerializeObject(forwardPayload);
+                httpRequest.Content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+                var client = _httpClientFactory.CreateClient();
+                client.Timeout = TimeSpan.FromSeconds(DefaultTimeoutSeconds);
+
+                _logger.LogInformation("Calling external Beneficiary Status API for portal '{PortalName}' at {TargetUrl} for mobile {Mobile}, benNo {BenNo}",
+                    portalName, targetUri, mobileNo, beneficiaryNo);
+
+                using var httpResponse = await client.SendAsync(httpRequest, cancellationToken);
+                string responseBody = await httpResponse.Content.ReadAsStringAsync(cancellationToken);
+                int httpStatusCode = (int)httpResponse.StatusCode;
+
+                _logger.LogInformation("External portal response received with status code {StatusCode}", httpStatusCode);
+
+                if (!httpResponse.IsSuccessStatusCode)
+                {
+                    string errMessage = $"External portal returned HTTP {httpStatusCode}.";
+                    try
+                    {
+                        var tokenObj = JToken.Parse(responseBody);
+                        if (tokenObj is JObject obj && obj["message"] != null)
+                        {
+                            errMessage = obj["message"]!.ToString();
+                        }
+                    }
+                    catch { }
+
+                    return new ApplicantResponse
+                    {
+                        Status = false,
+                        Code = httpStatusCode,
+                        StatusCode = httpStatusCode,
+                        Message = errMessage,
+                        Data = null
+                    };
+                }
+
+                // 4. Parse response from external API
+                bool isStatus = true;
+                int code = (int)HttpStatusCode.OK;
+                string message = "Pensioner status fetched successfully.";
+                object? dataPayload = null;
+
+                if (!string.IsNullOrWhiteSpace(responseBody))
+                {
+                    try
+                    {
+                        var tokenObj = JToken.Parse(responseBody);
+                        if (tokenObj is JObject obj)
+                        {
+                            if (obj["status"] != null)
+                            {
+                                isStatus = obj["status"]!.Value<bool>();
+                            }
+                            if (obj["code"] != null)
+                            {
+                                code = obj["code"]!.Value<int>();
+                            }
+                            if (obj["message"] != null)
+                            {
+                                message = obj["message"]!.ToString();
+                            }
+                            if (obj["data"] != null)
+                            {
+                                dataPayload = obj["data"]!.ToObject<BeneficiaryStatusData>() ?? (object)obj["data"]!;
+                            }
+                        }
+                    }
+                    catch (Exception parseEx)
+                    {
+                        _logger.LogWarning(parseEx, "Failed to parse strongly-typed BeneficiaryStatusData from response.");
+                        try
+                        {
+                            dataPayload = JsonConvert.DeserializeObject(responseBody);
+                        }
+                        catch { }
+                    }
+                }
+
+                return new ApplicantResponse
+                {
+                    Status = isStatus,
+                    Code = code,
+                    StatusCode = (int)HttpStatusCode.OK,
+                    Message = message,
+                    Data = dataPayload
+                };
+            }
+            catch (TaskCanceledException ex)
+            {
+                _logger.LogWarning(ex, "Timeout connecting to external portal ID {PortalId} at {TargetUrl}", portalId, targetUrl);
+                _exceptionLogging.SendErrorToText(ex);
+
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.GatewayTimeout,
+                    StatusCode = (int)HttpStatusCode.GatewayTimeout,
+                    Message = $"Gateway Timeout: The external portal at '{targetUrl}' took too long to respond (host may be offline or unreachable).",
+                    Data = null
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to get beneficiary status for portal ID {PortalId} at {TargetUrl}", portalId, targetUrl);
+                _exceptionLogging.SendErrorToText(ex);
+
+                return new ApplicantResponse
+                {
+                    Status = false,
+                    Code = (int)HttpStatusCode.BadGateway,
+                    StatusCode = (int)HttpStatusCode.BadGateway,
+                    Message = $"Bad Gateway: Unable to connect or process external beneficiary status API at '{targetUrl}' ({ex.Message})",
+                    Data = null
+                };
+            }
         }
     }
 }

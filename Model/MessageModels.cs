@@ -95,6 +95,12 @@ namespace SankalpAPI.Model
         public string? ClientKey { get; set; }
     }
 
+    public class GetBroadCastMessageRequest
+    {
+        public string DeviceID { get; set; } = string.Empty;            
+   
+    }
+
     public class GetMessageHistoryRequest
     {
         public string DeviceID { get; set; } = string.Empty;

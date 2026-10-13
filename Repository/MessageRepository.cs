@@ -286,16 +286,22 @@ namespace SankalpAPI.Repository
             return Task.FromResult((existingCount > 0, unsyncedCount));
         }
 
-        public Task<List<BroadcastMessageDto>> GetBroadcastMessagesAsync()
+        public Task<List<BroadcastMessageDto>> GetBroadcastMessagesAsync(string deviceId)
         {
+            SqlParameter[] parameters;
             var list = new List<BroadcastMessageDto>();
 
-            const string query = @"SELECT Bmsg_id, message_head, message_body, validity_in_minutes, is_active, photo1path, photo2path, videopath, documentpath, entryby, entrydate, updatedby, updateddate, IsSynced, IsDeleted
-                                   FROM dbo.tbl_BroadCastMessage
-                                   WHERE (is_active IS NULL OR is_active = 'Y' OR is_active = '1')
-                                   ORDER BY entrydate DESC, Bmsg_id DESC;";
+            const string query = @"SELECT       M.Portal_id, M.User_Type_ID,B.Bmsg_id, B.message_head, B.message_body, B.validity_in_minutes, B.is_active, B.photo1path, B.photo2path, B.videopath, B.documentpath, B.IsDeleted, B.IsSynced
+FROM            tbl_BroadCastMessage AS B INNER JOIN
+                         tbl_map_user_portal AS M ON B.Portal_id = M.portal_id AND B.User_Type_ID = M.User_Type_ID
+WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.deviceid = @p_device_id)  ORDER BY entrydate DESC, Bmsg_id DESC";
 
-            DataTable dt = _dataAccess.GetDataTable(query);
+            parameters = new SqlParameter[]
+               {
+                    new SqlParameter("@p_device_id", SqlDbType.NVarChar, 255) { Value = deviceId ?? string.Empty }
+               };
+
+            DataTable dt = _dataAccess.GetDataTable(query, parameters);
 
             foreach (DataRow row in dt.Rows)
             {

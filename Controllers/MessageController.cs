@@ -96,9 +96,9 @@ namespace SankalpAPI.Controllers
         /// No request parameters required.
         /// </summary>
         [HttpPost("GetBroadCastMessage")]
-        public async Task<IActionResult> GetBroadCastMessage()
+        public async Task<IActionResult> GetBroadCastMessage([FromBody] GetBroadCastMessageRequest request)
         {
-            var result = await _messageService.GetBroadcastMessagesAsync();
+            var result = await _messageService.GetBroadcastMessagesAsync(request);
             return Ok(result);
         }
 

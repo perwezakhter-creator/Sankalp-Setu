@@ -57,7 +57,7 @@ namespace SankalpAPI.Services
 
                 if (string.IsNullOrWhiteSpace(apiUrl) || string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
                 {
-                    _logger.LogWarning("SMS settings are incomplete. Skipping external SMS dispatch. OTP={Otp}, Mobile={Mobile}", otp, mobileNo);
+                    _logger.LogWarning("SMS settings are incomplete. Skipping external SMS dispatch for Mobile={Mobile}", mobileNo);
                     return (false, "SMS settings are incomplete.");
                 }
 
@@ -113,7 +113,7 @@ namespace SankalpAPI.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Failed to send OTP SMS to {Mobile}. OTP was {Otp}", mobileNo, otp);
+                _logger.LogError(ex, "Failed to send OTP SMS to {Mobile}", mobileNo);
                 _exceptionLogging.SendErrorToText(ex);
                 return (false, ex.Message);
             }
