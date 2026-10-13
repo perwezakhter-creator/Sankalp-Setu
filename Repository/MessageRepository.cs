@@ -312,6 +312,8 @@ WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.dev
                     MessageBody = SafeString(row, "message_body"),
                     ValidityInMinutes = SafeNullableShort(row, "validity_in_minutes", 60),
                     IsActive = SafeString(row, "is_active") ?? "Y",
+                    PortalId = SafeNullableLong(row, "Portal_id"),
+                    UserTypeId = SafeString(row, "User_Type_ID"),
                     photo1path = SafeString(row, "photo1path"),
                     photo2path = SafeString(row, "photo2path"),
                     videopath = SafeString(row, "videopath"),
@@ -330,9 +332,9 @@ WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.dev
 
         public Task<long> InsertBroadcastMessageAsync(InsertBroadcastMessageRequest request)
         {
-            const string insertSql = @"INSERT INTO dbo.tbl_BroadCastMessage (message_head, message_body, validity_in_minutes, is_active, photo1path, photo2path, videopath, documentpath, entryby, entrydate, IsSynced, IsDeleted)
+            const string insertSql = @"INSERT INTO dbo.tbl_BroadCastMessage (message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, entryby, entrydate, IsSynced, IsDeleted)
                                        OUTPUT INSERTED.Bmsg_id
-                                       VALUES (@message_head, @message_body, @validity_in_minutes, @is_active, @photo1path, @photo2path, @videopath, @documentpath, @entryby, GETDATE(), 'N','N');";
+                                       VALUES (@message_head, @message_body, @validity_in_minutes, @is_active, @portal_id, @user_type_id, @photo1path, @photo2path, @videopath, @documentpath, @entryby, GETDATE(), 'N','N');";
 
             string activeVal = string.IsNullOrWhiteSpace(request.IsActive) ? "Y" : request.IsActive.Trim().Substring(0, 1).ToUpperInvariant();
 
@@ -353,6 +355,14 @@ WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.dev
                 new SqlParameter("@is_active", SqlDbType.Char, 1)
                 {
                     Value = activeVal
+                },
+                new SqlParameter("@portal_id", SqlDbType.BigInt)
+                {
+                    Value = request.PortalId.HasValue && request.PortalId.Value > 0 ? (object)request.PortalId.Value : DBNull.Value
+                },
+                new SqlParameter("@user_type_id", SqlDbType.NVarChar, 100)
+                {
+                    Value = string.IsNullOrWhiteSpace(request.UserTypeId) ? (object)DBNull.Value : request.UserTypeId.Trim()
                 },
                 new SqlParameter("@photo1path", SqlDbType.NVarChar, -1)
                 {
@@ -388,7 +398,7 @@ WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.dev
 
         public Task<BroadcastMessageDto?> GetBroadcastMessageByIdAsync(long bmsgId)
         {
-            const string query = @"SELECT Bmsg_id, message_head, message_body, validity_in_minutes, is_active, photo1path, photo2path, videopath, documentpath, entryby, entrydate, updatedby, updateddate, IsSynced, IsDeleted
+            const string query = @"SELECT Bmsg_id, message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, entryby, entrydate, updatedby, updateddate, IsSynced, IsDeleted
                                    FROM dbo.tbl_BroadCastMessage
                                    WHERE Bmsg_id = @bmsg_id;";
 
@@ -411,6 +421,8 @@ WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.dev
                 MessageBody = SafeString(row, "message_body"),
                 ValidityInMinutes = SafeNullableShort(row, "validity_in_minutes", 60),
                 IsActive = SafeString(row, "is_active") ?? "Y",
+                PortalId = SafeNullableLong(row, "Portal_id"),
+                UserTypeId = SafeString(row, "User_Type_ID"),
                 photo1path = SafeString(row, "photo1path"),
                 photo2path = SafeString(row, "photo2path"),
                 videopath = SafeString(row, "videopath"),

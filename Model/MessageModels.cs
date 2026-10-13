@@ -165,6 +165,14 @@ namespace SankalpAPI.Model
         [Newtonsoft.Json.JsonProperty("is_active")]
         public string? IsActive { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("portal_id")]
+        [Newtonsoft.Json.JsonProperty("portal_id")]
+        public long? PortalId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("user_type_id")]
+        [Newtonsoft.Json.JsonProperty("user_type_id")]
+        public string? UserTypeId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("photo1path")]
         [Newtonsoft.Json.JsonProperty("photo1path")]
         public string? photo1path { get; set; }
@@ -249,6 +257,14 @@ namespace SankalpAPI.Model
         [System.Text.Json.Serialization.JsonPropertyName("is_active")]
         [Newtonsoft.Json.JsonProperty("is_active")]
         public string? IsActive { get; set; } = "Y";
+
+        [System.Text.Json.Serialization.JsonPropertyName("portal_id")]
+        [Newtonsoft.Json.JsonProperty("portal_id")]
+        public long? PortalId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("user_type_id")]
+        [Newtonsoft.Json.JsonProperty("user_type_id")]
+        public string? UserTypeId { get; set; }
 
         [System.Text.Json.Serialization.JsonPropertyName("photo1path")]
         [Newtonsoft.Json.JsonProperty("photo1path")]
