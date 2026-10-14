@@ -1,8 +1,10 @@
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using SankalpAPI.Helper;
 using SankalpAPI.Interface;
+using SankalpAPI.Middleware;
 using SankalpAPI.Repository;
 using SankalpAPI.Services;
-using SankalpAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +27,34 @@ builder.Services.AddControllers()
     });
 
 builder.Services.AddEndpointsApiExplorer();
+
+// ============================================================
+// FIREBASE ADMIN SDK INITIALIZATION (SINGLETON)
+// Keep the service-account JSON on the backend server only.
+// Configure via appsettings.json ("Firebase:ServiceAccountKeyPath")
+// or the GOOGLE_APPLICATION_CREDENTIALS environment variable.
+// ============================================================
+if (FirebaseApp.DefaultInstance == null)
+{
+    try
+    {
+        string? serviceAccountPath = builder.Configuration["Firebase:ServiceAccountKeyPath"]
+            ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS");
+
+        GoogleCredential credential = !string.IsNullOrWhiteSpace(serviceAccountPath) && File.Exists(serviceAccountPath)
+            ? GoogleCredential.FromFile(serviceAccountPath)
+            : GoogleCredential.GetApplicationDefault();
+
+        FirebaseApp.Create(new AppOptions
+        {
+            Credential = credential
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"[Firebase Warning] FirebaseApp could not be initialized at startup: {ex.Message}");
+    }
+}
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -105,6 +135,7 @@ builder.Services.AddScoped<IApplicantService, ApplicantService>();
 builder.Services.AddScoped<ApplicantService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<IFcmNotificationService, FcmNotificationService>();
 
 builder.Services.AddScoped<ExceptionLogging>();
 

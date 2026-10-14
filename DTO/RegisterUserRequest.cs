@@ -58,8 +58,17 @@ namespace SankalpAPI.DTO
         [JsonPropertyName("occupationId")]
         public int? OccupationId { get; set; }
 
+        [StringLength(200, ErrorMessage = "DeviceId cannot exceed 200 characters.")]
         [JsonPropertyName("deviceId")]
         public string? DeviceId { get; set; }
+
+        [StringLength(2048, ErrorMessage = "FcmToken cannot exceed 2048 characters.")]
+        [JsonPropertyName("fcmToken")]
+        public string? FcmToken { get; set; }
+
+        [StringLength(20, ErrorMessage = "Platform cannot exceed 20 characters.")]
+        [JsonPropertyName("platform")]
+        public string? Platform { get; set; }
 
         [JsonPropertyName("entryBy")]
         public string? EntryBy { get; set; }

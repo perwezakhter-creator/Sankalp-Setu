@@ -59,6 +59,54 @@ namespace SankalpAPI.Services
             request.Name = request.Name.Trim();
 
             // --------------------------------------------------------
+            // 1b. Optional FCM Device & Platform Validation
+            // --------------------------------------------------------
+            request.DeviceId = string.IsNullOrWhiteSpace(request.DeviceId) ? null : request.DeviceId.Trim();
+            request.FcmToken = string.IsNullOrWhiteSpace(request.FcmToken) ? null : request.FcmToken.Trim();
+            request.Platform = string.IsNullOrWhiteSpace(request.Platform) ? "Android" : request.Platform.Trim();
+
+            if (request.DeviceId != null && request.DeviceId.Length > 200)
+            {
+                return ServiceResult<RegisterUserResponse>.Ok(StatusCodes.Status400BadRequest, new RegisterUserResponse
+                {
+                    Success = false,
+                    Message = "Invalid registration data."
+                });
+            }
+
+            if (request.FcmToken != null)
+            {
+                if (string.IsNullOrWhiteSpace(request.DeviceId) ||
+                    request.FcmToken.Length < 10 ||
+                    request.FcmToken.Length > 2048 ||
+                    string.Equals(request.FcmToken, "null", StringComparison.OrdinalIgnoreCase) ||
+                    string.Equals(request.FcmToken, "undefined", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ServiceResult<RegisterUserResponse>.Ok(StatusCodes.Status400BadRequest, new RegisterUserResponse
+                    {
+                        Success = false,
+                        Message = "Invalid registration data."
+                    });
+                }
+
+                if (request.Platform.Length > 20 ||
+                    (!string.Equals(request.Platform, "Android", StringComparison.OrdinalIgnoreCase) &&
+                     !string.Equals(request.Platform, "iOS", StringComparison.OrdinalIgnoreCase) &&
+                     !string.Equals(request.Platform, "Web", StringComparison.OrdinalIgnoreCase)))
+                {
+                    return ServiceResult<RegisterUserResponse>.Ok(StatusCodes.Status400BadRequest, new RegisterUserResponse
+                    {
+                        Success = false,
+                        Message = "Invalid registration data."
+                    });
+                }
+
+                request.Platform = string.Equals(request.Platform, "android", StringComparison.OrdinalIgnoreCase)
+                    ? "Android"
+                    : (string.Equals(request.Platform, "ios", StringComparison.OrdinalIgnoreCase) ? "iOS" : "Web");
+            }
+
+            // --------------------------------------------------------
             // 2. Password Processing
             // If password provided, encrypt using Encryptor; else empty string
             // --------------------------------------------------------

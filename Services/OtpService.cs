@@ -187,10 +187,25 @@ namespace SankalpAPI.Services
                         string? dbDeviceId = existingUser.DeviceId?.Trim();
 
                         // If DB DeviceId is NULL/empty or different from requested DeviceId, update DB
-                        if (string.IsNullOrWhiteSpace(dbDeviceId) ||!string.Equals(dbDeviceId, deviceId, StringComparison.OrdinalIgnoreCase))
+                        if (string.IsNullOrWhiteSpace(dbDeviceId) || !string.Equals(dbDeviceId, deviceId, StringComparison.OrdinalIgnoreCase))
                         {
                             await _userRepository.UpdateUserDeviceIdAsync(mobile, deviceId);
                             existingUser.DeviceId = deviceId;
+                        }
+
+                        // If FcmToken was also supplied during OTP verification, upsert in dbo.UserFcmDevices
+                        string fcmToken = DecryptIfNeeded(request.FcmToken ?? string.Empty, request.ClientKey).Trim();
+                        string platform = string.IsNullOrWhiteSpace(request.Platform)
+                            ? "Android"
+                            : DecryptIfNeeded(request.Platform, request.ClientKey).Trim();
+
+                        if (!string.IsNullOrWhiteSpace(fcmToken))
+                        {
+                            await _userRepository.UpsertUserFcmDeviceAsync(
+                                existingUser.UserId.ToString(),
+                                deviceId,
+                                fcmToken,
+                                platform);
                         }
                     }
 

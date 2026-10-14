@@ -18,6 +18,12 @@ namespace SankalpAPI.DTO
         [JsonPropertyName("DeviceId")]
         public string DeviceId { get; set; } = string.Empty;
 
+        [JsonPropertyName("fcmToken")]
+        public string? FcmToken { get; set; }
+
+        [JsonPropertyName("platform")]
+        public string? Platform { get; set; }
+
         [JsonPropertyName("clientKey")]
         public string? ClientKey { get; set; }
     }

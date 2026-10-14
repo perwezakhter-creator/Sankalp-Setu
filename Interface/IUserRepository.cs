@@ -31,5 +31,28 @@ namespace SankalpAPI.Interface
 
         // Update existing user's DeviceId in tbl_user
         Task<bool> UpdateUserDeviceIdAsync(string mobileNo, string deviceId, CancellationToken cancellationToken = default);
+
+        // Insert or update a user's FCM device token in dbo.UserFcmDevices
+        Task<bool> UpsertUserFcmDeviceAsync(
+            string userId,
+            string deviceId,
+            string fcmToken,
+            string platform = "Android",
+            CancellationToken cancellationToken = default);
+
+        // Retrieve all active FCM device tokens for a user from dbo.UserFcmDevices
+        Task<List<UserFcmDeviceDto>> GetActiveUserFcmDevicesAsync(
+            string userId,
+            CancellationToken cancellationToken = default);
+
+        // Deactivate invalid or unregistered FCM tokens in dbo.UserFcmDevices
+        Task<int> DeactivateInvalidFcmTokensAsync(
+            IEnumerable<string> fcmTokens,
+            CancellationToken cancellationToken = default);
+
+        // Check whether the authenticated user is an authorized administrator or backend sender
+        Task<bool> IsAuthorizedNotificationSenderAsync(
+            string authenticatedUserId,
+            CancellationToken cancellationToken = default);
     }
 }
