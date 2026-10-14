@@ -126,6 +126,32 @@ namespace SankalpAPI.Controllers
         }
 
         /// <summary>
+      
+        [HttpPost("GetMapUserPortal")]
+        [Consumes("application/json")]
+        [ProducesResponseType(typeof(MapUserPortalResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMapUserPortal([FromBody] MapUserPortalRequest request)
+        {
+            if (request == null)
+            {
+                return BadRequest(new
+                {
+                    status = false,
+                    message = "Invalid request payload."
+                });
+            }
+
+            var response = await _portalService.GetMapUserPortalAsync(request.PortalId, request.UserTypeId);
+
+            if (!response.Status)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, response);
+            }
+
+            return Ok(response);
+        }
+
+        /// <summary>
         /// Connects to an external portal API resolved from mst_portal and injects credentials from tbl_map_user_portal.
         /// </summary>
         [HttpPost("Connect")]

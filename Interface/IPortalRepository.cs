@@ -11,5 +11,7 @@ namespace SankalpAPI.Interface
         Task<PortalDto?> GetPortalByIdAsync(long portalId);
         Task<List<UserTypeDto>> GetUserTypeByIdAsync(long portalId);
         Task<PortalUserMappingDto?> GetPortalAndUserMappingAsync(long portalId, string? mobile);
+        Task<List<MapUserPortalDto>> GetMapUserPortalAsync(long? portalId, long? userTypeId);
+
     }
 }

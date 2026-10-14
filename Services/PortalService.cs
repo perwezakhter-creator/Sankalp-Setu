@@ -206,5 +206,37 @@ namespace SankalpAPI.Services
                 };
             }
         }
+
+        /// <summary>
+        /// Fetches mapped user-portal records from tbl_map_user_portal (joined with mst_portal and UserType),
+        /// optionally filtered by portal and/or user type.
+        /// </summary>
+        public async Task<MapUserPortalResponse> GetMapUserPortalAsync(long? portalId, long? userTypeId)
+        {
+            try
+            {
+                var records = await _portalRepository.GetMapUserPortalAsync(portalId, userTypeId);
+
+                return new MapUserPortalResponse
+                {
+                    Status = true,
+                    Message = records.Count > 0
+                        ? $"Successfully fetched {records.Count} mapped user-portal record(s)."
+                        : "No records found for the selected filters.",
+                    Count = records.Count,
+                    Data = records
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching mapped user-portal records from tbl_map_user_portal.");
+
+                return new MapUserPortalResponse
+                {
+                    Status = false,
+                    Message = "Unable to fetch mapped user-portal records."
+                };
+            }
+        }
     }
 }

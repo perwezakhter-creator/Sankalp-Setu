@@ -123,5 +123,68 @@ namespace SankalpAPI.Repository
 
             return Task.FromResult<PortalUserMappingDto?>(dto);
         }
+
+        public Task<List<MapUserPortalDto>> GetMapUserPortalAsync(long? portalId, long? userTypeId)
+        {
+            var list = new List<MapUserPortalDto>();
+
+            SqlParameter[] parameters =
+            {
+                new SqlParameter("@p_portal_id", SqlDbType.BigInt)
+                {
+                    Value = portalId.HasValue ? (object)portalId.Value : DBNull.Value
+                },
+                new SqlParameter("@p_user_type_id", SqlDbType.BigInt)
+                {
+                    Value = userTypeId.HasValue ? (object)userTypeId.Value : DBNull.Value
+                }
+            };
+
+            const string query = @"
+                SELECT
+                    m.user_portal_id,
+                    m.portal_id,
+                    p.portal_name,
+                    m.User_Type_ID,
+                    ut.User_Type_Name,
+                    m.mobile,
+                    m.userid,
+                    m.deviceid,
+                    m.district_code,
+                    m.block_code,
+                    m.panchayatcode,
+                    m.entry_by,
+                    m.entry_date
+                FROM dbo.tbl_map_user_portal m
+                LEFT JOIN dbo.mst_portal p ON m.portal_id = p.portal_id
+                LEFT JOIN dbo.UserType ut ON m.User_Type_ID = ut.User_Type_ID AND m.portal_id = ut.Portal_ID
+                WHERE (@p_portal_id IS NULL OR m.portal_id = @p_portal_id)
+                  AND (@p_user_type_id IS NULL OR m.User_Type_ID = @p_user_type_id)
+                ORDER BY m.entry_date DESC, m.user_portal_id DESC;";
+
+            DataTable dt = _dataAccess.GetDataTable(query, parameters);
+
+            foreach (DataRow row in dt.Rows)
+            {
+                list.Add(new MapUserPortalDto
+                {
+                    UserPortalId = Convert.ToInt64(row["user_portal_id"]),
+                    PortalId = Convert.ToInt64(row["portal_id"]),
+                    PortalName = row["portal_name"] == DBNull.Value ? null : row["portal_name"]?.ToString(),
+                    UserTypeId = row["User_Type_ID"] == DBNull.Value ? null : Convert.ToInt64(row["User_Type_ID"]),
+                    UserTypeName = row["User_Type_Name"] == DBNull.Value ? null : row["User_Type_Name"]?.ToString(),
+                    Mobile = row["mobile"] == DBNull.Value ? null : row["mobile"]?.ToString(),
+                    UserId = row["userid"] == DBNull.Value ? null : row["userid"]?.ToString(),
+                    DeviceId = row["deviceid"] == DBNull.Value ? null : row["deviceid"]?.ToString(),
+                    DistrictCode = row["district_code"] == DBNull.Value ? null : Convert.ToInt64(row["district_code"]),
+                    BlockCode = row["block_code"] == DBNull.Value ? null : Convert.ToInt64(row["block_code"]),
+                    PanchayatCode = row["panchayatcode"] == DBNull.Value ? null : Convert.ToInt64(row["panchayatcode"]),
+                    EntryBy = row["entry_by"] == DBNull.Value ? null : row["entry_by"]?.ToString(),
+                    EntryDate = row["entry_date"] == DBNull.Value ? null : Convert.ToDateTime(row["entry_date"])
+                });
+            }
+
+            return Task.FromResult(list);
+        }
     }
 }

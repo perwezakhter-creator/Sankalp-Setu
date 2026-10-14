@@ -137,4 +137,86 @@ namespace SankalpAPI.Model
         public string? SecretKey { get; set; }
         public string? Token { get; set; }
     }
+
+    /// <summary>
+  
+    public class MapUserPortalRequest
+    {
+        [JsonPropertyName("portal_id")]
+        [JsonProperty("portal_id")]
+        public long? PortalId { get; set; }
+
+        [JsonPropertyName("user_type_id")]
+        [JsonProperty("user_type_id")]
+        public long? UserTypeId { get; set; }
+    }
+
+    /// <summary>
+    /// DTO representing a record from tbl_map_user_portal joined with mst_portal and UserType.
+    /// </summary>
+    public class MapUserPortalDto
+    {
+        [JsonPropertyName("user_portal_id")]
+        [JsonProperty("user_portal_id")]
+        public long UserPortalId { get; set; }
+
+        [JsonPropertyName("portal_id")]
+        [JsonProperty("portal_id")]
+        public long PortalId { get; set; }
+
+        [JsonPropertyName("portal_name")]
+        [JsonProperty("portal_name")]
+        public string? PortalName { get; set; }
+
+        [JsonPropertyName("user_type_id")]
+        [JsonProperty("user_type_id")]
+        public long? UserTypeId { get; set; }
+
+        [JsonPropertyName("user_type_name")]
+        [JsonProperty("user_type_name")]
+        public string? UserTypeName { get; set; }
+
+        [JsonPropertyName("mobile")]
+        [JsonProperty("mobile")]
+        public string? Mobile { get; set; }
+
+        [JsonPropertyName("userid")]
+        [JsonProperty("userid")]
+        public string? UserId { get; set; }
+
+        [JsonPropertyName("deviceid")]
+        [JsonProperty("deviceid")]
+        public string? DeviceId { get; set; }
+
+        [JsonPropertyName("district_code")]
+        [JsonProperty("district_code")]
+        public long? DistrictCode { get; set; }
+
+        [JsonPropertyName("block_code")]
+        [JsonProperty("block_code")]
+        public long? BlockCode { get; set; }
+
+        [JsonPropertyName("panchayatcode")]
+        [JsonProperty("panchayatcode")]
+        public long? PanchayatCode { get; set; }
+
+        [JsonPropertyName("entry_by")]
+        [JsonProperty("entry_by")]
+        public string? EntryBy { get; set; }
+
+        [JsonPropertyName("entry_date")]
+        [JsonProperty("entry_date")]
+        public DateTime? EntryDate { get; set; }
+    }
+
+    /// <summary>
+    /// Standardized response for mapped user-portal records.
+    /// </summary>
+    public class MapUserPortalResponse
+    {
+        public bool Status { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public int Count { get; set; }
+        public List<MapUserPortalDto> Data { get; set; } = new List<MapUserPortalDto>();
+    }
 }
