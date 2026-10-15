@@ -119,6 +119,7 @@ builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IApplicantRepository, ApplicantRepository>();
 builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
 
 // Services
 builder.Services.AddScoped<IAuthService, AuthService>();
@@ -135,6 +136,7 @@ builder.Services.AddScoped<IApplicantService, ApplicantService>();
 builder.Services.AddScoped<ApplicantService>();
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 builder.Services.AddScoped<DashboardService>();
+builder.Services.AddScoped<GroupService>();
 builder.Services.AddScoped<IFcmNotificationService, FcmNotificationService>();
 
 builder.Services.AddScoped<ExceptionLogging>();
