@@ -208,8 +208,8 @@ namespace SankalpAPI.Services
         }
 
         /// <summary>
-        /// Fetches mapped user-portal records from tbl_map_user_portal (joined with mst_portal and UserType),
-        /// optionally filtered by portal and/or user type.
+        /// Fetches registered users from tbl_user with optional matching portal mappings,
+        /// optionally matching the requested portal and/or user type.
         /// </summary>
         public async Task<MapUserPortalResponse> GetMapUserPortalAsync(long? portalId, long? userTypeId)
         {
@@ -221,20 +221,20 @@ namespace SankalpAPI.Services
                 {
                     Status = true,
                     Message = records.Count > 0
-                        ? $"Successfully fetched {records.Count} mapped user-portal record(s)."
-                        : "No records found for the selected filters.",
+                        ? $"Successfully fetched {records.Count} registered user record(s)."
+                        : "No registered users found.",
                     Count = records.Count,
                     Data = records
                 };
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error fetching mapped user-portal records from tbl_map_user_portal.");
+                _logger.LogError(ex, "Error fetching registered users and portal mappings.");
 
                 return new MapUserPortalResponse
                 {
                     Status = false,
-                    Message = "Unable to fetch mapped user-portal records."
+                    Message = "Unable to fetch registered users and portal mappings."
                 };
             }
         }

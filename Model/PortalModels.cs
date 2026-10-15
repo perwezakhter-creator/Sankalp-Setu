@@ -152,17 +152,17 @@ namespace SankalpAPI.Model
     }
 
     /// <summary>
-    /// DTO representing a record from tbl_map_user_portal joined with mst_portal and UserType.
+    /// DTO representing a registered user with an optional portal mapping, portal, and user type.
     /// </summary>
     public class MapUserPortalDto
     {
         [JsonPropertyName("user_portal_id")]
         [JsonProperty("user_portal_id")]
-        public long UserPortalId { get; set; }
+        public long? UserPortalId { get; set; }
 
         [JsonPropertyName("portal_id")]
         [JsonProperty("portal_id")]
-        public long PortalId { get; set; }
+        public long? PortalId { get; set; }
 
         [JsonPropertyName("portal_name")]
         [JsonProperty("portal_name")]

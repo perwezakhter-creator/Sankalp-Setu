@@ -147,20 +147,22 @@ namespace SankalpAPI.Repository
                     p.portal_name,
                     m.User_Type_ID,
                     ut.User_Type_Name,
-                    m.mobile,
-                    m.userid,
-                    m.deviceid,
-                    m.district_code,
-                    m.block_code,
-                    m.panchayatcode,
+                    u.Mobile AS mobile,
+                    CONVERT(varchar(20), u.User_id) AS userid,
+                    u.Deviceid AS deviceid,
+                    u.DistCode AS district_code,
+                    u.BlockCode AS block_code,
+                    u.PanchayatCode AS panchayatcode,
                     m.entry_by,
                     m.entry_date
-                FROM dbo.tbl_map_user_portal m
+                FROM dbo.tbl_user u
+                LEFT OUTER JOIN dbo.tbl_map_user_portal m
+                    ON m.userid = u.Mobile
+                   AND (@p_portal_id IS NULL OR m.portal_id = @p_portal_id)
+                   AND (@p_user_type_id IS NULL OR m.User_Type_ID = @p_user_type_id)
                 LEFT JOIN dbo.mst_portal p ON m.portal_id = p.portal_id
                 LEFT JOIN dbo.UserType ut ON m.User_Type_ID = ut.User_Type_ID AND m.portal_id = ut.Portal_ID
-                WHERE (@p_portal_id IS NULL OR m.portal_id = @p_portal_id)
-                  AND (@p_user_type_id IS NULL OR m.User_Type_ID = @p_user_type_id)
-                ORDER BY m.entry_date DESC, m.user_portal_id DESC;";
+                ORDER BY m.entry_date DESC, m.user_portal_id DESC, u.User_id DESC;";
 
             DataTable dt = _dataAccess.GetDataTable(query, parameters);
 
@@ -168,8 +170,8 @@ namespace SankalpAPI.Repository
             {
                 list.Add(new MapUserPortalDto
                 {
-                    UserPortalId = Convert.ToInt64(row["user_portal_id"]),
-                    PortalId = Convert.ToInt64(row["portal_id"]),
+                    UserPortalId = row["user_portal_id"] == DBNull.Value ? null : Convert.ToInt64(row["user_portal_id"]),
+                    PortalId = row["portal_id"] == DBNull.Value ? null : Convert.ToInt64(row["portal_id"]),
                     PortalName = row["portal_name"] == DBNull.Value ? null : row["portal_name"]?.ToString(),
                     UserTypeId = row["User_Type_ID"] == DBNull.Value ? null : Convert.ToInt64(row["User_Type_ID"]),
                     UserTypeName = row["User_Type_Name"] == DBNull.Value ? null : row["User_Type_Name"]?.ToString(),

@@ -291,10 +291,39 @@ namespace SankalpAPI.Repository
             SqlParameter[] parameters;
             var list = new List<BroadcastMessageDto>();
 
-            const string query = @"SELECT       M.Portal_id, M.User_Type_ID,B.Bmsg_id, B.message_head, B.message_body, B.validity_in_minutes, B.is_active, B.photo1path, B.photo2path, B.videopath, B.documentpath, B.IsDeleted, B.IsSynced
-FROM            tbl_BroadCastMessage AS B INNER JOIN
-                         tbl_map_user_portal AS M ON B.Portal_id = M.portal_id AND B.User_Type_ID = M.User_Type_ID
-WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1') AND (M.deviceid = @p_device_id)  ORDER BY entrydate DESC, Bmsg_id DESC";
+            const string query = @"
+            SELECT B.Portal_id,
+                   B.User_Type_ID,
+                   B.Bmsg_id,
+                   B.message_head,
+                   B.message_body,
+                   B.validity_in_minutes,
+                   B.is_active,
+                   B.photo1path,
+                   B.photo2path,
+                   B.videopath,
+                   B.documentpath,
+                   B.entryby,
+                   B.entrydate,
+                   B.updatedby,
+                   B.updateddate,
+                   B.IsDeleted,
+                   B.IsSynced
+            FROM dbo.tbl_BroadCastMessage AS B
+            WHERE (B.is_active IS NULL OR B.is_active = 'Y' OR B.is_active = '1')
+              AND ISNULL(B.IsDeleted, 'N') <> 'Y'
+              AND (
+                    NULLIF(LTRIM(RTRIM(@p_device_id)), '') IS NULL
+                    OR (B.Portal_id IS NULL AND B.User_Type_ID IS NULL)
+                    OR EXISTS (
+                        SELECT 1
+                        FROM dbo.tbl_map_user_portal AS M
+                        WHERE M.deviceid = @p_device_id
+                          AND M.portal_id = B.Portal_id
+                          AND M.User_Type_ID = B.User_Type_ID
+                    )
+                  )
+            ORDER BY B.entrydate DESC, B.Bmsg_id DESC;";
 
             parameters = new SqlParameter[]
                {
