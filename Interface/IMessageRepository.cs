@@ -13,6 +13,7 @@ namespace SankalpAPI.Interface
         Task<(bool hasExistingLog, int unsyncedCount)> CheckBroadcastSyncStatusAsync(string deviceId, List<string>? interestIds = null, long? portalId = null);
         Task<PersonalizedMessageDto?> GetMessageByIdAsync(long msgId);
         Task<List<BroadcastMessageDto>> GetBroadcastMessagesAsync(string deviceId);
+        Task<List<MessageTypeDto>> GetMessageTypesAsync();
         Task<long> InsertBroadcastMessageAsync(InsertBroadcastMessageRequest request);
         Task<BroadcastMessageDto?> GetBroadcastMessageByIdAsync(long bmsgId);
         Task<long> InsertInterestWiseMessageAsync(InsertInterestWiseMessageRequest request);

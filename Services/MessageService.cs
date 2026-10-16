@@ -258,6 +258,26 @@ namespace SankalpAPI.Services
             }
         }
 
+        public async Task<object> GetMessageTypesAsync()
+        {
+            try
+            {
+                var messageTypes = await _messageRepository.GetMessageTypesAsync();
+                return new
+                {
+                    status = true,
+                    message = "Message types retrieved successfully.",
+                    data = messageTypes
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting message types");
+                _exceptionLogging.SendErrorToText(ex);
+                return new { status = false, message = "Unable to retrieve message types.", data = Array.Empty<MessageTypeDto>() };
+            }
+        }
+
         public async Task<InsertBroadcastMessageResponse> InsertBroadcastMessageAsync(InsertBroadcastMessageRequest request)
         {
             if (request == null)
@@ -284,6 +304,28 @@ namespace SankalpAPI.Services
 
             request.MessageHead = messageHead;
             request.MessageBody = messageBody;
+
+            if (request.IsAllDistrict)
+            {
+                request.DistrictCodes = null;
+            }
+            else
+            {
+                request.DistrictCodes = request.DistrictCodes?
+                    .Where(code => !string.IsNullOrWhiteSpace(code))
+                    .Select(code => code.Trim())
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+
+                if (request.DistrictCodes == null || request.DistrictCodes.Count == 0)
+                {
+                    return new InsertBroadcastMessageResponse
+                    {
+                        Status = false,
+                        Message = "Select at least one district or choose all districts."
+                    };
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Photo1Path))
                 request.Photo1Path = DecryptIfNeeded(request.Photo1Path, request.ClientKey);

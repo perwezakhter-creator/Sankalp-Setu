@@ -103,6 +103,16 @@ namespace SankalpAPI.Controllers
         }
 
         /// <summary>
+        /// Fetches the message types available when creating a broadcast notice.
+        /// </summary>
+        [HttpPost("GetMessageType")]
+        public async Task<IActionResult> GetMessageType()
+        {
+            var result = await _messageService.GetMessageTypesAsync();
+            return Ok(result);
+        }
+
+        /// <summary>
         /// Insert a new broadcast message into tbl_BroadCastMessage via POST JSON body.
         /// </summary>
         /// <remarks>

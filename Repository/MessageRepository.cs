@@ -295,6 +295,7 @@ namespace SankalpAPI.Repository
             SELECT B.Portal_id,
                    B.User_Type_ID,
                    B.Bmsg_id,
+                   B.MesgTypeID,
                    B.message_head,
                    B.message_body,
                    B.validity_in_minutes,
@@ -337,6 +338,7 @@ namespace SankalpAPI.Repository
                 list.Add(new BroadcastMessageDto
                 {
                     Bmsg_id = SafeLong(row, "Bmsg_id"),
+                    MesgTypeId = SafeNullableLong(row, "MesgTypeID"),
                     MessageHead = SafeString(row, "message_head"),
                     MessageBody = SafeString(row, "message_body"),
                     ValidityInMinutes = SafeNullableShort(row, "validity_in_minutes", 60),
@@ -359,75 +361,98 @@ namespace SankalpAPI.Repository
             return Task.FromResult(list);
         }
 
-        public Task<long> InsertBroadcastMessageAsync(InsertBroadcastMessageRequest request)
+        public Task<List<MessageTypeDto>> GetMessageTypesAsync()
         {
-            const string insertSql = @"INSERT INTO dbo.tbl_BroadCastMessage (message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, entryby, entrydate, IsSynced, IsDeleted)
+            const string query = @"SELECT MesgTypeID, MesgTypeName
+                                   FROM dbo.MessageType
+                                   ORDER BY MesgTypeID;";
+            DataTable dt = _dataAccess.GetDataTable(query, Array.Empty<SqlParameter>());
+            var messageTypes = new List<MessageTypeDto>();
+
+            foreach (DataRow row in dt.Rows)
+            {
+                messageTypes.Add(new MessageTypeDto
+                {
+                    MesgTypeId = SafeLong(row, "MesgTypeID"),
+                    MesgTypeName = SafeString(row, "MesgTypeName") ?? string.Empty
+                });
+            }
+
+            return Task.FromResult(messageTypes);
+        }
+
+        public async Task<long> InsertBroadcastMessageAsync(InsertBroadcastMessageRequest request)
+        {
+            const string insertSql = @"INSERT INTO dbo.tbl_BroadCastMessage (message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, MesgTypeID, entryby, entrydate, IsSynced, IsDeleted, IsAllDistrict)
                                        OUTPUT INSERTED.Bmsg_id
-                                       VALUES (@message_head, @message_body, @validity_in_minutes, @is_active, @portal_id, @user_type_id, @photo1path, @photo2path, @videopath, @documentpath, @entryby, GETDATE(), 'N','N');";
+                                       VALUES (@message_head, @message_body, @validity_in_minutes, @is_active, @portal_id, @user_type_id, @photo1path, @photo2path, @videopath, @documentpath, @mesg_type_id, @entryby, GETDATE(), 'N','N', @is_all_district);";
 
             string activeVal = string.IsNullOrWhiteSpace(request.IsActive) ? "Y" : request.IsActive.Trim().Substring(0, 1).ToUpperInvariant();
 
-            SqlParameter[] parameters =
+            await using var connection = _dataAccess.GetConnection();
+            await connection.OpenAsync();
+            await using var transaction = (SqlTransaction)await connection.BeginTransactionAsync();
+
+            try
             {
-                new SqlParameter("@message_head", SqlDbType.NVarChar, 255)
+                long bmsgId;
+                await using (var insertCommand = new SqlCommand(insertSql, connection, transaction))
                 {
-                    Value = string.IsNullOrWhiteSpace(request.MessageHead) ? (object)DBNull.Value : request.MessageHead.Trim()
-                },
-                new SqlParameter("@message_body", SqlDbType.NVarChar, -1)
-                {
-                    Value = request.MessageBody?.Trim() ?? string.Empty
-                },
-                new SqlParameter("@validity_in_minutes", SqlDbType.SmallInt)
-                {
-                    Value = request.ValidityInMinutes.HasValue ? (object)request.ValidityInMinutes.Value : 60
-                },
-                new SqlParameter("@is_active", SqlDbType.Char, 1)
-                {
-                    Value = activeVal
-                },
-                new SqlParameter("@portal_id", SqlDbType.BigInt)
-                {
-                    Value = request.PortalId.HasValue && request.PortalId.Value > 0 ? (object)request.PortalId.Value : DBNull.Value
-                },
-                new SqlParameter("@user_type_id", SqlDbType.NVarChar, 100)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.UserTypeId) ? (object)DBNull.Value : request.UserTypeId.Trim()
-                },
-                new SqlParameter("@photo1path", SqlDbType.NVarChar, -1)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.Photo1Path) ? (object)DBNull.Value : request.Photo1Path.Trim()
-                },
-                new SqlParameter("@photo2path", SqlDbType.NVarChar, -1)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.Photo2Path) ? (object)DBNull.Value : request.Photo2Path.Trim()
-                },
-                new SqlParameter("@videopath", SqlDbType.NVarChar, -1)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.VideoPath) ? (object)DBNull.Value : request.VideoPath.Trim()
-                },
-                new SqlParameter("@documentpath", SqlDbType.NVarChar, -1)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.DocumentPath) ? (object)DBNull.Value : request.DocumentPath.Trim()
-                },
-                new SqlParameter("@entryby", SqlDbType.NVarChar, 255)
-                {
-                    Value = string.IsNullOrWhiteSpace(request.EntryBy) ? "Admin" : request.EntryBy.Trim()
+                    insertCommand.CommandTimeout = 120;
+                    insertCommand.Parameters.AddRange(new[]
+                    {
+                        new SqlParameter("@message_head", SqlDbType.NVarChar, 255) { Value = string.IsNullOrWhiteSpace(request.MessageHead) ? (object)DBNull.Value : request.MessageHead.Trim() },
+                        new SqlParameter("@message_body", SqlDbType.NVarChar, -1) { Value = request.MessageBody?.Trim() ?? string.Empty },
+                        new SqlParameter("@validity_in_minutes", SqlDbType.SmallInt) { Value = request.ValidityInMinutes.HasValue ? (object)request.ValidityInMinutes.Value : 60 },
+                        new SqlParameter("@is_active", SqlDbType.Char, 1) { Value = activeVal },
+                        new SqlParameter("@is_all_district", SqlDbType.Char, 1) { Value = request.IsAllDistrict ? "Y" : "N" },
+                        new SqlParameter("@portal_id", SqlDbType.BigInt) { Value = request.PortalId.HasValue && request.PortalId.Value > 0 ? (object)request.PortalId.Value : DBNull.Value },
+                        new SqlParameter("@user_type_id", SqlDbType.NVarChar, 100) { Value = string.IsNullOrWhiteSpace(request.UserTypeId) ? (object)DBNull.Value : request.UserTypeId.Trim() },
+                        new SqlParameter("@photo1path", SqlDbType.NVarChar, -1) { Value = string.IsNullOrWhiteSpace(request.Photo1Path) ? (object)DBNull.Value : request.Photo1Path.Trim() },
+                        new SqlParameter("@photo2path", SqlDbType.NVarChar, -1) { Value = string.IsNullOrWhiteSpace(request.Photo2Path) ? (object)DBNull.Value : request.Photo2Path.Trim() },
+                        new SqlParameter("@videopath", SqlDbType.NVarChar, -1) { Value = string.IsNullOrWhiteSpace(request.VideoPath) ? (object)DBNull.Value : request.VideoPath.Trim() },
+                        new SqlParameter("@documentpath", SqlDbType.NVarChar, -1) { Value = string.IsNullOrWhiteSpace(request.DocumentPath) ? (object)DBNull.Value : request.DocumentPath.Trim() },
+                        new SqlParameter("@mesg_type_id", SqlDbType.BigInt) { Value = request.MesgTypeId.HasValue && request.MesgTypeId.Value > 0 ? request.MesgTypeId.Value : 1 },
+                        new SqlParameter("@entryby", SqlDbType.NVarChar, 255) { Value = string.IsNullOrWhiteSpace(request.EntryBy) ? "Admin" : request.EntryBy.Trim() }
+                    });
+
+                    object? insertedId = await insertCommand.ExecuteScalarAsync();
+                    if (insertedId == null || insertedId == DBNull.Value)
+                    {
+                        throw new InvalidOperationException("Failed to retrieve the generated broadcast message ID.");
+                    }
+
+                    bmsgId = Convert.ToInt64(insertedId);
                 }
-            };
 
-            DataTable dt = _dataAccess.GetDataTable(insertSql, parameters);
-            long bmsgId = 0;
-            if (dt != null && dt.Rows.Count > 0 && dt.Rows[0][0] != DBNull.Value)
-            {
-                bmsgId = Convert.ToInt64(dt.Rows[0][0]);
+                if (!request.IsAllDistrict)
+                {
+                    const string insertDistrictMapSql = @"INSERT INTO dbo.tbl_BroadCastMapDistrict (Bmsg_id, District_code, Block_code, Panchayatcode)
+                                                           VALUES (@bmsg_id, @district_code, NULL, NULL);";
+
+                    foreach (string districtCode in request.DistrictCodes!.Distinct(StringComparer.OrdinalIgnoreCase))
+                    {
+                        await using var districtMapCommand = new SqlCommand(insertDistrictMapSql, connection, transaction);
+                        districtMapCommand.CommandTimeout = 120;
+                        districtMapCommand.Parameters.Add(new SqlParameter("@bmsg_id", SqlDbType.BigInt) { Value = bmsgId });
+                        districtMapCommand.Parameters.Add(new SqlParameter("@district_code", SqlDbType.NVarChar, 50) { Value = districtCode });
+                        await districtMapCommand.ExecuteNonQueryAsync();
+                    }
+                }
+
+                await transaction.CommitAsync();
+                return bmsgId;
             }
-
-            return Task.FromResult(bmsgId);
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         public Task<BroadcastMessageDto?> GetBroadcastMessageByIdAsync(long bmsgId)
         {
-            const string query = @"SELECT Bmsg_id, message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, entryby, entrydate, updatedby, updateddate, IsSynced, IsDeleted
+            const string query = @"SELECT Bmsg_id, MesgTypeID, message_head, message_body, validity_in_minutes, is_active, Portal_id, User_Type_ID, photo1path, photo2path, videopath, documentpath, entryby, entrydate, updatedby, updateddate, IsSynced, IsDeleted
                                    FROM dbo.tbl_BroadCastMessage
                                    WHERE Bmsg_id = @bmsg_id;";
 
@@ -446,6 +471,7 @@ namespace SankalpAPI.Repository
             var dto = new BroadcastMessageDto
             {
                 Bmsg_id = SafeLong(row, "Bmsg_id"),
+                MesgTypeId = SafeNullableLong(row, "MesgTypeID"),
                 MessageHead = SafeString(row, "message_head"),
                 MessageBody = SafeString(row, "message_body"),
                 ValidityInMinutes = SafeNullableShort(row, "validity_in_minutes", 60),

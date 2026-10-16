@@ -149,6 +149,10 @@ namespace SankalpAPI.Model
         [Newtonsoft.Json.JsonProperty("msg_id")]
         public long msg_id => Bmsg_id;
 
+        [System.Text.Json.Serialization.JsonPropertyName("mesg_type_id")]
+        [Newtonsoft.Json.JsonProperty("mesg_type_id")]
+        public long? MesgTypeId { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("message_head")]
         [Newtonsoft.Json.JsonProperty("message_head")]
         public string? MessageHead { get; set; }
@@ -282,6 +286,18 @@ namespace SankalpAPI.Model
         [Newtonsoft.Json.JsonProperty("documentpath")]
         public string? DocumentPath { get; set; }
 
+        [System.Text.Json.Serialization.JsonPropertyName("mesg_type_id")]
+        [Newtonsoft.Json.JsonProperty("mesg_type_id")]
+        public long? MesgTypeId { get; set; } = 1;
+
+        [System.Text.Json.Serialization.JsonPropertyName("is_all_district")]
+        [Newtonsoft.Json.JsonProperty("is_all_district")]
+        public bool IsAllDistrict { get; set; } = true;
+
+        [System.Text.Json.Serialization.JsonPropertyName("district_codes")]
+        [Newtonsoft.Json.JsonProperty("district_codes")]
+        public List<string>? DistrictCodes { get; set; }
+
         [System.Text.Json.Serialization.JsonPropertyName("entryby")]
         [Newtonsoft.Json.JsonProperty("entryby")]
         public string? EntryBy { get; set; } = "Admin";
@@ -289,6 +305,17 @@ namespace SankalpAPI.Model
         [System.Text.Json.Serialization.JsonPropertyName("client_key")]
         [Newtonsoft.Json.JsonProperty("client_key")]
         public string? ClientKey { get; set; }
+    }
+
+    public class MessageTypeDto
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("mesg_type_id")]
+        [Newtonsoft.Json.JsonProperty("mesg_type_id")]
+        public long MesgTypeId { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("mesg_type_name")]
+        [Newtonsoft.Json.JsonProperty("mesg_type_name")]
+        public string MesgTypeName { get; set; } = string.Empty;
     }
 
     public class InsertBroadcastMessageResponse
