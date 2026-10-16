@@ -180,6 +180,10 @@ namespace SankalpAPI.Model
         [JsonProperty("mobile")]
         public string? Mobile { get; set; }
 
+        [JsonPropertyName("name")]
+        [JsonProperty("name")]
+        public string? Name { get; set; }
+
         [JsonPropertyName("userid")]
         [JsonProperty("userid")]
         public string? UserId { get; set; }
