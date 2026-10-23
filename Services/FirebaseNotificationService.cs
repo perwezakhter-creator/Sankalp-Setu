@@ -32,8 +32,10 @@ namespace SankalpAPI.Services
             _logger = logger;
             _campaignRepository = campaignRepository;
 
-            _simulateIfNoCredentials = _configuration.GetValue<bool>("FirebaseSettings:SimulateIfNoCredentials", true);
-            _channelId = _configuration.GetValue<string>("FirebaseSettings:DefaultChannelId") ?? "sankalp_campaign_channel";
+            _simulateIfNoCredentials = _configuration.GetValue<bool>("FirebaseSettings:SimulateIfNoCredentials", false);
+            _channelId = _configuration.GetValue<string>("Firebase:DefaultChannelId")
+                ?? _configuration.GetValue<string>("FirebaseSettings:DefaultChannelId")
+                ?? "high_importance_channel";
 
             EnsureFirebaseAppInitialized();
         }
@@ -56,7 +58,11 @@ namespace SankalpAPI.Services
 
                 try
                 {
-                    string credentialPath = _configuration.GetValue<string>("FirebaseSettings:CredentialPath") ?? "firebase-service-account.json";
+                    string? credentialPath = _configuration["Firebase:ServiceAccountKeyPath"]
+                        ?? _configuration["FirebaseSettings:CredentialPath"]
+                        ?? Environment.GetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS")
+                        ?? "firebase-service-account.json";
+
                     string projectId = _configuration.GetValue<string>("FirebaseSettings:ProjectId") ?? "sankalp-bihar";
 
                     string resolvedPath = Path.IsPathRooted(credentialPath)
@@ -159,16 +165,37 @@ namespace SankalpAPI.Services
         {
             var batchLogs = new List<CampaignDeliveryLogDto>();
 
-            // Ensure Firebase payload dictionary has campaign identifiers
+            // Extract image url if provided in data
+            string? imageUrl = null;
+            if (dataPayload != null)
+            {
+                if (dataPayload.TryGetValue("imageUrl", out var img) && !string.IsNullOrWhiteSpace(img))
+                    imageUrl = img.Trim();
+                else if (dataPayload.TryGetValue("photo1", out var p1) && !string.IsNullOrWhiteSpace(p1))
+                    imageUrl = p1.Trim();
+            }
+
+            // Ensure Firebase payload dictionary has standard & campaign identifiers
             var safeData = new Dictionary<string, string>(dataPayload ?? new Dictionary<string, string>())
             {
                 ["campaignId"] = campaignId.ToString(),
                 ["bmsgId"] = bmsgId.ToString(),
+                ["bmsg_id"] = bmsgId.ToString(),
+                ["id"] = campaignId.ToString(),
+                ["title"] = title.Trim(),
+                ["body"] = body.Trim(),
+                ["message"] = body.Trim(),
+                ["channel_id"] = _channelId ?? "high_importance_channel",
                 ["sentAt"] = DateTime.UtcNow.ToString("o")
             };
 
+            if (!_isFirebaseInitialized && FirebaseApp.DefaultInstance == null)
+            {
+                EnsureFirebaseAppInitialized();
+            }
+
             // If Firebase is initialized, send via FirebaseAdmin SDK
-            if (_isFirebaseInitialized && FirebaseMessaging.DefaultInstance != null)
+            if ((_isFirebaseInitialized || FirebaseApp.DefaultInstance != null) && FirebaseMessaging.DefaultInstance != null)
             {
                 try
                 {
@@ -178,8 +205,9 @@ namespace SankalpAPI.Services
                         Tokens = tokens,
                         Notification = new Notification
                         {
-                            Title = title,
-                            Body = body
+                            Title = title.Trim(),
+                            Body = body.Trim(),
+                            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl
                         },
                         Data = safeData,
                         Android = new AndroidConfig
@@ -187,8 +215,8 @@ namespace SankalpAPI.Services
                             Priority = Priority.High,
                             Notification = new AndroidNotification
                             {
-                                ChannelId = _channelId,
-                                ClickAction = "OPEN_CAMPAIGN_NOTIFICATION"
+                                ChannelId = _channelId ?? "high_importance_channel",
+                                Sound = "default"
                             }
                         }
                     };
@@ -258,28 +286,24 @@ namespace SankalpAPI.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Unexpected error in FCM batch multicast for Campaign {CampaignId}. Attempting fallback.", campaignId);
-                    // Fallback to recording as failed unless simulation enabled
-                    if (!_simulateIfNoCredentials)
+                    _logger.LogError(ex, "Unexpected error in FCM batch multicast for Campaign {CampaignId}.", campaignId);
+                    foreach (var cand in batchRecipients)
                     {
-                        foreach (var cand in batchRecipients)
+                        batchLogs.Add(new CampaignDeliveryLogDto
                         {
-                            batchLogs.Add(new CampaignDeliveryLogDto
-                            {
-                                CampaignId = campaignId,
-                                BmsgId = bmsgId,
-                                UserId = cand.UserId,
-                                DeviceId = cand.DeviceId,
-                                FcmToken = cand.FcmToken!,
-                                Platform = cand.Platform ?? "Android",
-                                DeliveryStatus = "Failed",
-                                ErrorCode = "Exception",
-                                ErrorMessage = ex.Message,
-                                DispatchedAt = DateTime.UtcNow
-                            });
-                        }
-                        return batchLogs;
+                            CampaignId = campaignId,
+                            BmsgId = bmsgId,
+                            UserId = cand.UserId,
+                            DeviceId = cand.DeviceId,
+                            FcmToken = cand.FcmToken!,
+                            Platform = cand.Platform ?? "Android",
+                            DeliveryStatus = "Failed",
+                            ErrorCode = "Exception",
+                            ErrorMessage = ex.Message,
+                            DispatchedAt = DateTime.UtcNow
+                        });
                     }
+                    return batchLogs;
                 }
             }
 

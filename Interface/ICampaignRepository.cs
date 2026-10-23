@@ -25,5 +25,6 @@ namespace SankalpAPI.Interface
         Task<bool> RecordAuditLogAsync(long campaignId, string action, string? fromStatus, string toStatus, string actionBy, string? actionRole, string? remarks, string? actionIp = null);
         Task<List<CampaignAuditLogDto>> GetAuditHistoryAsync(long campaignId);
         Task<string?> GetUserRoleAsync(string userId);
+        Task<long> SyncCampaignMessageToInboxAsync(long campaignId, long bmsgId, List<string> deviceIds);
     }
 }

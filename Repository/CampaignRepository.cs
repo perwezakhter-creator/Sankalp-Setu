@@ -1449,5 +1449,145 @@ namespace SankalpAPI.Repository
             }
             return Task.FromResult<string?>(null);
         }
+
+        public async Task<long> SyncCampaignMessageToInboxAsync(long campaignId, long bmsgId, List<string> deviceIds)
+        {
+            if (campaignId <= 0 && bmsgId <= 0) return 0;
+
+            var cleanDeviceIds = (deviceIds ?? new List<string>())
+                .Where(d => !string.IsNullOrWhiteSpace(d))
+                .Select(d => d.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            try
+            {
+                await using var con = _dataAccess.GetConnection();
+                await con.OpenAsync();
+
+                // 1. Retrieve Campaign details
+                var campaign = await GetCampaignByIdAsync(campaignId);
+                string title = !string.IsNullOrWhiteSpace(campaign?.MessageHead)
+                    ? campaign.MessageHead.Trim()
+                    : (campaign?.CampaignName?.Trim() ?? "Campaign Notice");
+
+                string body = !string.IsNullOrWhiteSpace(campaign?.MessageBody)
+                    ? campaign.MessageBody.Trim()
+                    : (campaign?.CampaignDescription?.Trim() ?? string.Empty);
+
+                long? portalId = campaign?.PortalId;
+                string? photo1 = campaign?.Photo1Path;
+                string? photo2 = campaign?.Photo2Path;
+                string? video = campaign?.VideoPath;
+                string? doc = campaign?.DocumentPath;
+                string entryBy = !string.IsNullOrWhiteSpace(campaign?.CreatedBy) ? campaign.CreatedBy.Trim() : "Maker";
+
+                // 2. Locate or insert message in dbo.tbl_Message
+                long msgId = 0;
+                const string findSql = @"
+                    SELECT TOP 1 msg_id 
+                    FROM dbo.tbl_Message 
+                    WHERE (message_head = @title OR (@title IS NULL AND message_head IS NULL))
+                      AND message_body = @body
+                      AND (portal_id = @portalId OR (@portalId IS NULL AND portal_id IS NULL))
+                    ORDER BY msg_id DESC;";
+
+                await using (var findCmd = new SqlCommand(findSql, con))
+                {
+                    findCmd.Parameters.Add(new SqlParameter("@title", (object?)title ?? DBNull.Value));
+                    findCmd.Parameters.Add(new SqlParameter("@body", (object?)body ?? string.Empty));
+                    findCmd.Parameters.Add(new SqlParameter("@portalId", (object?)portalId ?? DBNull.Value));
+
+                    var existingObj = await findCmd.ExecuteScalarAsync();
+                    if (existingObj != null && existingObj != DBNull.Value)
+                    {
+                        msgId = Convert.ToInt64(existingObj);
+                    }
+                }
+
+                if (msgId <= 0)
+                {
+                    const string insertMsgSql = @"
+                        INSERT INTO dbo.tbl_Message (
+                            portal_id,
+                            mobile,
+                            message_head,
+                            message_body,
+                            validity_in_minutes,
+                            is_active,
+                            interest_id,
+                            photo1path,
+                            photo2path,
+                            videopath,
+                            documentpath,
+                            entryby,
+                            entrydate,
+                            IsDeleted
+                        )
+                        OUTPUT INSERTED.msg_id
+                        VALUES (
+                            @portalId,
+                            NULL,
+                            @title,
+                            @body,
+                            1440,
+                            'Y',
+                            NULL,
+                            @photo1,
+                            @photo2,
+                            @video,
+                            @doc,
+                            @entryBy,
+                            GETDATE(),
+                            'N'
+                        );";
+
+                    await using var insertCmd = new SqlCommand(insertMsgSql, con);
+                    insertCmd.Parameters.Add(new SqlParameter("@portalId", (object?)portalId ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@title", (object?)title ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@body", (object?)body ?? string.Empty));
+                    insertCmd.Parameters.Add(new SqlParameter("@photo1", (object?)photo1 ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@photo2", (object?)photo2 ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@video", (object?)video ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@doc", (object?)doc ?? DBNull.Value));
+                    insertCmd.Parameters.Add(new SqlParameter("@entryBy", (object?)entryBy ?? "System"));
+
+                    var newIdObj = await insertCmd.ExecuteScalarAsync();
+                    if (newIdObj != null && newIdObj != DBNull.Value)
+                    {
+                        msgId = Convert.ToInt64(newIdObj);
+                    }
+                }
+
+                if (msgId <= 0) return 0;
+
+                // 3. Upsert into dbo.tbl_Message_log for each distinct device with is_synced = 'No'
+                if (cleanDeviceIds.Count > 0)
+                {
+                    const string insertLogSql = @"
+                        INSERT INTO dbo.tbl_Message_log (device_id, msg_id, is_synced, sync_date)
+                        SELECT @DeviceId, @MsgId, 'No', NULL
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM dbo.tbl_Message_log 
+                            WHERE device_id = @DeviceId AND msg_id = @MsgId
+                        );";
+
+                    foreach (var devId in cleanDeviceIds)
+                    {
+                        await using var logCmd = new SqlCommand(insertLogSql, con);
+                        logCmd.Parameters.Add(new SqlParameter("@DeviceId", devId));
+                        logCmd.Parameters.Add(new SqlParameter("@MsgId", msgId));
+                        await logCmd.ExecuteNonQueryAsync();
+                    }
+                }
+
+                return msgId;
+            }
+            catch (Exception ex)
+            {
+                _exceptionLogging.SendErrorToText(ex);
+                return 0;
+            }
+        }
     }
 }

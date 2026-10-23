@@ -371,6 +371,30 @@ namespace SankalpAPI.Services
                 return (true, "No eligible registered recipients found matching target criteria. Campaign marked as SENT with 0 dispatches.");
             }
 
+            // Synchronize campaign content into mobile message store (tbl_Message & tbl_Message_log)
+            // so the Android app retrieves it via GetUnsyncedMessages and GetInterestWiseMessage
+            long syncedMsgId = 0;
+            try
+            {
+                var candidateDevices = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var r in recipients)
+                {
+                    if (!string.IsNullOrWhiteSpace(r.DeviceId))
+                        candidateDevices.Add(r.DeviceId.Trim());
+                    if (!string.IsNullOrWhiteSpace(r.UserId))
+                        candidateDevices.Add(r.UserId.Trim());
+                }
+
+                syncedMsgId = await _campaignRepository.SyncCampaignMessageToInboxAsync(
+                    campaign.CampaignId,
+                    campaign.BmsgId,
+                    candidateDevices.ToList());
+            }
+            catch (Exception syncEx)
+            {
+                _logger.LogError(syncEx, "Non-fatal: Failed to sync Campaign {CampaignId} to tbl_Message inbox.", campaignId);
+            }
+
             // Prepare notification payload
             string notificationTitle = !string.IsNullOrWhiteSpace(campaign.MessageHead)
                 ? campaign.MessageHead
@@ -385,11 +409,18 @@ namespace SankalpAPI.Services
                 ["campaignId"] = campaign.CampaignId.ToString(),
                 ["campaignName"] = campaign.CampaignName,
                 ["bmsgId"] = campaign.BmsgId.ToString(),
+                ["bmsg_id"] = campaign.BmsgId.ToString(),
                 ["portalId"] = campaign.PortalId?.ToString() ?? "",
                 ["photo1"] = campaign.Photo1Path ?? "",
                 ["photo2"] = campaign.Photo2Path ?? "",
                 ["video"] = campaign.VideoPath ?? "",
-                ["document"] = campaign.DocumentPath ?? ""
+                ["document"] = campaign.DocumentPath ?? "",
+                ["imageUrl"] = campaign.Photo1Path ?? "",
+                ["title"] = notificationTitle,
+                ["body"] = notificationBody,
+                ["message"] = notificationBody,
+                ["id"] = syncedMsgId > 0 ? syncedMsgId.ToString() : campaign.CampaignId.ToString(),
+                ["msg_id"] = syncedMsgId > 0 ? syncedMsgId.ToString() : campaign.BmsgId.ToString()
             };
 
             // Multicast batch dispatch via Firebase service
